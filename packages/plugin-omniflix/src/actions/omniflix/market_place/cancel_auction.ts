@@ -12,25 +12,21 @@ import {
     IAgentRuntime,
 } from "@elizaos/core";
 import { WalletProvider, walletProvider } from "../../../providers/wallet.ts";
-import { ONFTProvider } from "../../../providers/omniflix/onft.ts";
-import burnNFTExamples from "../../../action_examples/omniflix/onft/burn_nft.ts";
+import { MarketPlaceProvider } from "../../../providers/omniflix/market_place.ts";
+import cancelAuctionExamples from "../../../action_examples/omniflix/market_place/cancel_auction.ts";
 
-export interface burnNFTContent extends Content {
-    id: string;
-    denomId: string;
+export interface cancelAuctionContent extends Content {
+    auctionId: string;
 }
 interface validationResult {
     success: boolean;
     message: string;
 }
 
-function isBurnNFTContent(content: Content): validationResult {
+function isCancelAuctionContent(content: Content): validationResult {
     let msg = "";
-    if (!content.id) {
-        msg += "Please provide a NFT id to burn the NFT.";
-    }
-    if (!content.denomId) {
-        msg += "Please provide a denom id for the of given NFT.";
+    if (!content.auctionId) {
+        msg += "Please provide auction id to cancel the auction.";
     }
     if (msg !== "") {
         return {
@@ -40,31 +36,29 @@ function isBurnNFTContent(content: Content): validationResult {
     }
     return {
         success: true,
-        message: "Collection request is valid.",
+        message: "Cancel auction request is valid.",
     };
 }
 
-const burnNFTTemplate = `Respond with a JSON markdown block containing only the extracted values.
+const cancelAuctionTemplate = `Respond with a JSON markdown block containing only the extracted values.Take all the values from the current messages, Dont consider the example values.
 
 Example response:
 \`\`\`json
 {
-   "id": "onft..",
-   "denomId": "onftdenom.."
+   "auctionId": "200.."
 }
 \`\`\`
 
 {{recentMessages}}
 
-Given the recent messages, extract the following information about the requested collection creation:
-- id mentioned in the current message
-- denomId mentioned in the current message
+Given the recent messages, extract the following information about the requested cancel auction from the current messages:
+- auctionId mentioned in the current message, dont take example value (required)
 
 Respond with a JSON markdown block containing only the extracted values.`;
 
-export class burnNFTAction {
-    async burnNFT(
-        params: burnNFTContent,
+export class cancelAuctionAction {
+    async cancelAuction(
+        params: cancelAuctionContent,
         runtime: IAgentRuntime,
         message: Memory,
         state: State
@@ -76,24 +70,23 @@ export class burnNFTAction {
                 state,
             );
 
-            const onftProvider = new ONFTProvider(wallet);
-            const response = await onftProvider.burnONFT(
-                params.id,
-                params.denomId
+            const marketPlaceProvider = new MarketPlaceProvider(wallet);
+            const response = await marketPlaceProvider.cancelAuction(
+                params.auctionId
             );
 
             return response.transactionHash;
         } catch (error) {
-            throw new Error(`Transfer failed: ${error.message}`);
+            throw new Error(`Cancel auction failed: ${error.message}`);
         }
     }
 }
 
-const buildBurnNFTDetails = async (
+const buildCancelAuctionDetails = async (
     runtime: IAgentRuntime,
     message: Memory,
     state: State
-): Promise<burnNFTContent> => {
+): Promise<cancelAuctionContent> => {
     
     let currentState: State = state;
     if (!currentState) {
@@ -101,28 +94,28 @@ const buildBurnNFTDetails = async (
     }
     currentState = await runtime.updateRecentMessageState(currentState);
 
-    const burnNFTContext = composeContext({
+    const cancelAuctionContext = composeContext({
         state: currentState,
-        template: burnNFTTemplate,
+        template: cancelAuctionTemplate,
     });
 
     const content = await generateObjectDeprecated({
         runtime,
-        context: burnNFTContext,
+        context: cancelAuctionContext,
         modelClass: ModelClass.SMALL,
     });
 
-    const burnNFTContent = content as burnNFTContent;
+    const cancelAuctionContent = content as cancelAuctionContent;
 
-    return burnNFTContent;
+    return cancelAuctionContent;
 };
 
 export default {
-    name: "BURN_ONFT",
+    name: "CANCEL_AUCTION",
     similes: [
-        "burn NFT",
+        "cancel auction",
     ],
-    description: "Burn a NFT.",
+    description: "Cancel an auction.",
     handler: async (
         runtime: IAgentRuntime,
         message: Memory,
@@ -130,13 +123,13 @@ export default {
         _options: { [key: string]: unknown },
         callback?: HandlerCallback
     ) => {
-        elizaLogger.log("Starting BURN_NFT handler...");
-        const burnNFTDetails = await buildBurnNFTDetails(
+        elizaLogger.log("Starting CANCEL_AUCTION handler...");
+        const cancelAuctionDetails = await buildCancelAuctionDetails(
             runtime,
             message,
             state
         );
-        const validationResult = isBurnNFTContent(burnNFTDetails);
+        const validationResult = isCancelAuctionContent(cancelAuctionDetails);
         if (!validationResult.success) {
             if (callback) {
                 callback({
@@ -147,9 +140,9 @@ export default {
             return false;
         }
         try {
-            const action = new burnNFTAction();
-            const txHash = await action.burnNFT(
-                burnNFTDetails,
+            const action = new cancelAuctionAction();
+            const txHash = await action.cancelAuction(
+                cancelAuctionDetails,
                 runtime,
                 message,
                 state
@@ -157,11 +150,9 @@ export default {
             state = await runtime.updateRecentMessageState(state);
 
             if (callback) {
-                let id = burnNFTDetails.id;
-                let recipient = burnNFTDetails.recipient;
-
+                let id = cancelAuctionDetails.auctionId;
                 callback({
-                    text: `Successfully burned NFT ${id} & hash: ${txHash}`,
+                    text: `Successfully cancelled auction ${id} & hash: ${txHash}`,
                     content: {
                         success: true,
                     },
@@ -171,16 +162,16 @@ export default {
         } catch (error) {
             if (callback) {
                 callback({
-                    text: `Failed to burn NFT: ${error.message}`,
+                    text: `Failed to cancel auction: ${error.message}`,
                     content: { error: error.message },
                 });
             }
             return false;
         }
     },
-    template: burnNFTExamples,
+    template: cancelAuctionExamples,
     validate: async (_runtime: IAgentRuntime) => {
         return true;
     },
-    examples: burnNFTExamples as ActionExample[][],
+    examples: cancelAuctionExamples as ActionExample[][],
 } as Action;

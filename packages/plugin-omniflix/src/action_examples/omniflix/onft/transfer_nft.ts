@@ -13,12 +13,12 @@ export default  [
         },
         {
             user: '{{user1}}',
-            content: { text: "onftdenom..." }
+            content: { text: "onft..." }
         },
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given NFT id is 'onftdenom'. Please provide denomId and the recipient address.",
+                text: "Given NFT id is 'onft'. Please provide denomId and the recipient address.",
                 action: "NONE"
             }
         },
@@ -40,7 +40,7 @@ export default  [
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "I'll transfer the NFT with id 'onftdenom' , denomId 'denomid' the address 'omniflix1...' for you now.",
+                text: "I'll transfer the NFT with id 'onft' , denomId 'denomid' the address 'omniflix1...' for you now.",
                 action: "TRANSFER_NFT"
             }
         }

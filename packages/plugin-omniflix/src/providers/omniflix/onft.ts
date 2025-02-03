@@ -1,6 +1,6 @@
 import { elizaLogger } from "@elizaos/core";
 import { DeliverTxResponse } from "@cosmjs/stargate";
-import { WalletProvider } from "./wallet";
+import { WalletProvider } from "../wallet";
 import { MsgCreateDenom, MsgUpdateDenom, MsgTransferDenom, MsgMintONFT, MsgTransferONFT, MsgBurnONFT } from 'flixjs/OmniFlix/onft/v1beta1/tx';
 
 export class ONFTProvider {
@@ -134,7 +134,7 @@ export class ONFTProvider {
             const fee = {
                 amount: [{
                     denom: 'uflix',
-                    amount: '1000000'
+                    amount: '50000'
                 }],
                 gas: '5000000'
             };

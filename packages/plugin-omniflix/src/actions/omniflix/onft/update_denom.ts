@@ -12,8 +12,8 @@ import {
     IAgentRuntime,
 } from "@elizaos/core";
 import { WalletProvider, walletProvider } from "../../../providers/wallet.ts";
-import { ONFTProvider } from "../../../providers/onft.ts";
-import updateDenomExamples from "../../../action_examples/onft/update_denom.ts";
+import { ONFTProvider } from "../../../providers/omniflix/onft.ts";
+import updateDenomExamples from "../../../action_examples/omniflix/onft/update_denom.ts";
 
 export interface updateDenomContent extends Content {
     id: string;

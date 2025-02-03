@@ -12,9 +12,9 @@ import {
     IAgentRuntime,
 } from "@elizaos/core";
 import { WalletProvider, walletProvider } from "../../../providers/wallet.ts";
-import { ONFTProvider } from "../../../providers/onft.ts";
+import { ONFTProvider } from "../../../providers/omniflix/onft.ts";
 import { bech32 } from "bech32";
-import transferDenomExamples from "../../../action_examples/onft/transfer_denom.ts";
+import transferDenomExamples from "../../../action_examples/omniflix/onft/transfer_denom.ts";
 
 export interface transferDenomContent extends Content {
     id: string;

@@ -12,9 +12,9 @@ import {
     IAgentRuntime,
 } from "@elizaos/core";
 import { WalletProvider, walletProvider } from "../../../providers/wallet.ts";
-import { ONFTProvider } from "../../../providers/onft.ts";
+import { ONFTProvider } from "../../../providers/omniflix/onft.ts";
 import { bech32 } from "bech32";
-import transferNFTExamples from "../../../action_examples/onft/transfer_nft.ts";
+import transferNFTExamples from "../../../action_examples/omniflix/onft/transfer_nft.ts";
 
 export interface transferNFTContent extends Content {
     id: string;

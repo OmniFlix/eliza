@@ -12,25 +12,21 @@ import {
     IAgentRuntime,
 } from "@elizaos/core";
 import { WalletProvider, walletProvider } from "../../../providers/wallet.ts";
-import { ONFTProvider } from "../../../providers/omniflix/onft.ts";
-import burnNFTExamples from "../../../action_examples/omniflix/onft/burn_nft.ts";
+import { MarketPlaceProvider } from "../../../providers/omniflix/market_place.ts";
+import deListNFTExamples from "../../../action_examples/omniflix/market_place/de_list_nft.ts";
 
-export interface burnNFTContent extends Content {
-    id: string;
-    denomId: string;
+export interface deListNFTContent extends Content {
+    listId: string;
 }
 interface validationResult {
     success: boolean;
     message: string;
 }
 
-function isBurnNFTContent(content: Content): validationResult {
+function isDeListNFTContent(content: Content): validationResult {
     let msg = "";
-    if (!content.id) {
-        msg += "Please provide a NFT id to burn the NFT.";
-    }
-    if (!content.denomId) {
-        msg += "Please provide a denom id for the of given NFT.";
+    if (!content.listId) {
+        msg += "Please provide listId to de-list the NFT.";
     }
     if (msg !== "") {
         return {
@@ -40,31 +36,29 @@ function isBurnNFTContent(content: Content): validationResult {
     }
     return {
         success: true,
-        message: "Collection request is valid.",
+        message: "De-list NFT request is valid.",
     };
 }
 
-const burnNFTTemplate = `Respond with a JSON markdown block containing only the extracted values.
+const deListNFTTemplate = `Respond with a JSON markdown block containing only the extracted values.
 
 Example response:
 \`\`\`json
 {
-   "id": "onft..",
-   "denomId": "onftdenom.."
+   "listId": "list.."
 }
 \`\`\`
 
 {{recentMessages}}
 
-Given the recent messages, extract the following information about the requested collection creation:
-- id mentioned in the current message
-- denomId mentioned in the current message
+Given the recent messages, extract the following information about the requested de-list NFT:
+- listId mentioned in the current message (required)
 
 Respond with a JSON markdown block containing only the extracted values.`;
 
-export class burnNFTAction {
-    async burnNFT(
-        params: burnNFTContent,
+export class deListNFTAction {
+    async deListNFT(
+        params: deListNFTContent,
         runtime: IAgentRuntime,
         message: Memory,
         state: State
@@ -76,24 +70,23 @@ export class burnNFTAction {
                 state,
             );
 
-            const onftProvider = new ONFTProvider(wallet);
-            const response = await onftProvider.burnONFT(
-                params.id,
-                params.denomId
+            const marketPlaceProvider = new MarketPlaceProvider(wallet);
+            const response = await marketPlaceProvider.deListNFT(
+                params.listId
             );
 
             return response.transactionHash;
         } catch (error) {
-            throw new Error(`Transfer failed: ${error.message}`);
+            throw new Error(`De-list failed: ${error.message}`);
         }
     }
 }
 
-const buildBurnNFTDetails = async (
+const buildDeListNFTDetails = async (
     runtime: IAgentRuntime,
     message: Memory,
     state: State
-): Promise<burnNFTContent> => {
+): Promise<deListNFTContent> => {
     
     let currentState: State = state;
     if (!currentState) {
@@ -101,28 +94,28 @@ const buildBurnNFTDetails = async (
     }
     currentState = await runtime.updateRecentMessageState(currentState);
 
-    const burnNFTContext = composeContext({
+    const deListNFTContext = composeContext({
         state: currentState,
-        template: burnNFTTemplate,
+        template: deListNFTTemplate,
     });
 
     const content = await generateObjectDeprecated({
         runtime,
-        context: burnNFTContext,
+        context: deListNFTContext,
         modelClass: ModelClass.SMALL,
     });
 
-    const burnNFTContent = content as burnNFTContent;
+    const deListNFTContent = content as deListNFTContent;
 
-    return burnNFTContent;
+    return deListNFTContent;
 };
 
 export default {
-    name: "BURN_ONFT",
+    name: "DE_LIST_NFT",
     similes: [
-        "burn NFT",
+        "de-list NFT",
     ],
-    description: "Burn a NFT.",
+    description: "De-list a NFT.",
     handler: async (
         runtime: IAgentRuntime,
         message: Memory,
@@ -130,13 +123,13 @@ export default {
         _options: { [key: string]: unknown },
         callback?: HandlerCallback
     ) => {
-        elizaLogger.log("Starting BURN_NFT handler...");
-        const burnNFTDetails = await buildBurnNFTDetails(
+        elizaLogger.log("Starting DE_LIST_NFT handler...");
+        const deListNFTDetails = await buildDeListNFTDetails(
             runtime,
             message,
             state
         );
-        const validationResult = isBurnNFTContent(burnNFTDetails);
+        const validationResult = isDeListNFTContent(deListNFTDetails);
         if (!validationResult.success) {
             if (callback) {
                 callback({
@@ -147,9 +140,9 @@ export default {
             return false;
         }
         try {
-            const action = new burnNFTAction();
-            const txHash = await action.burnNFT(
-                burnNFTDetails,
+            const action = new deListNFTAction();
+            const txHash = await action.deListNFT(
+                deListNFTDetails,
                 runtime,
                 message,
                 state
@@ -157,11 +150,9 @@ export default {
             state = await runtime.updateRecentMessageState(state);
 
             if (callback) {
-                let id = burnNFTDetails.id;
-                let recipient = burnNFTDetails.recipient;
-
+                let id = deListNFTDetails.listId;
                 callback({
-                    text: `Successfully burned NFT ${id} & hash: ${txHash}`,
+                    text: `Successfully de-listed NFT ${id} & hash: ${txHash}`,
                     content: {
                         success: true,
                     },
@@ -171,16 +162,16 @@ export default {
         } catch (error) {
             if (callback) {
                 callback({
-                    text: `Failed to burn NFT: ${error.message}`,
+                    text: `Failed to de-list NFT: ${error.message}`,
                     content: { error: error.message },
                 });
             }
             return false;
         }
     },
-    template: burnNFTExamples,
+    template: deListNFTExamples,
     validate: async (_runtime: IAgentRuntime) => {
         return true;
     },
-    examples: burnNFTExamples as ActionExample[][],
+    examples: deListNFTExamples as ActionExample[][],
 } as Action;

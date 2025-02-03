@@ -12,10 +12,10 @@ import {
     IAgentRuntime,
 } from "@elizaos/core";
 import { WalletProvider, walletProvider } from "../../../providers/wallet.ts";
-import { ONFTProvider } from "../../../providers/onft.ts";
+import { ONFTProvider } from "../../../providers/omniflix/onft.ts";
 import { bech32 } from "bech32";
 import { v4 as uuidv4 } from 'uuid';
-import createDenomExamples from "../../../action_examples/onft/create_denom.ts";
+import createDenomExamples from "../../../action_examples/omniflix/onft/create_denom.ts";
 const genUniqueID = (prefix) => {
     return prefix + uuidv4().replace(/-/g, '');
 };

@@ -11,26 +11,31 @@ import {
     Action,
     IAgentRuntime,
 } from "@elizaos/core";
+import { Coin } from "@cosmjs/stargate";
 import { WalletProvider, walletProvider } from "../../../providers/wallet.ts";
-import { ONFTProvider } from "../../../providers/omniflix/onft.ts";
-import burnNFTExamples from "../../../action_examples/omniflix/onft/burn_nft.ts";
+import { MarketPlaceProvider } from "../../../providers/omniflix/market_place.ts";
+import buyNFTExamples from "../../../action_examples/omniflix/market_place/buy_nft.ts";
 
-export interface burnNFTContent extends Content {
-    id: string;
-    denomId: string;
+export interface buyNFTContent extends Content {
+    listId: string;
+    amount: number | string;
+    denom: string;
 }
 interface validationResult {
     success: boolean;
     message: string;
 }
 
-function isBurnNFTContent(content: Content): validationResult {
+function isBuyNFTContent(content: Content): validationResult {
     let msg = "";
-    if (!content.id) {
-        msg += "Please provide a NFT id to burn the NFT.";
+    if (!content.listId) {
+        msg += "Please provide a listId to buy the NFT.";
     }
-    if (!content.denomId) {
-        msg += "Please provide a denom id for the of given NFT.";
+    if (!content.amount) {
+        msg += "Please provide an amount to buy the NFT.";
+    }
+    if (!content.denom) {
+        msg += "Please provide a denom to buy the NFT.";
     }
     if (msg !== "") {
         return {
@@ -40,31 +45,32 @@ function isBurnNFTContent(content: Content): validationResult {
     }
     return {
         success: true,
-        message: "Collection request is valid.",
+        message: "Buy NFT request is valid.",
     };
 }
 
-const burnNFTTemplate = `Respond with a JSON markdown block containing only the extracted values.
+const buyNFTTemplate = `Respond with a JSON markdown block containing only the extracted values.
 
 Example response:
 \`\`\`json
 {
-   "id": "onft..",
-   "denomId": "onftdenom.."
+   "listId": "list..",
+    "amount": "100",
+    "denom": "uflix"
 }
 \`\`\`
 
 {{recentMessages}}
 
-Given the recent messages, extract the following information about the requested collection creation:
-- id mentioned in the current message
-- denomId mentioned in the current message
+Given the recent messages, extract the following information about the requested buy NFT:
+- listId mentioned in the current message (required)
+- price mentioned in the current message (required) price contains amount and denom
 
 Respond with a JSON markdown block containing only the extracted values.`;
 
-export class burnNFTAction {
-    async burnNFT(
-        params: burnNFTContent,
+export class buyNFTAction {
+    async buyNFT(
+        params: buyNFTContent,
         runtime: IAgentRuntime,
         message: Memory,
         state: State
@@ -76,24 +82,33 @@ export class burnNFTAction {
                 state,
             );
 
-            const onftProvider = new ONFTProvider(wallet);
-            const response = await onftProvider.burnONFT(
-                params.id,
-                params.denomId
+            const marketPlaceProvider = new MarketPlaceProvider(wallet);
+            if (params.denom === "FLIX" || params.denom === "flix") {
+                params.denom = "uflix";
+                if (typeof params.amount === "number") {
+                    params.amount = params.amount * 1000000;
+                } else if (typeof params.amount === "string") {
+                    params.amount = Number.parseInt(params.amount) * 1000000;
+                }
+            }
+            const response = await marketPlaceProvider.buyNFT(
+                params.listId,
+                params.amount,
+                params.denom
             );
 
             return response.transactionHash;
         } catch (error) {
-            throw new Error(`Transfer failed: ${error.message}`);
+            throw new Error(`Buy failed: ${error.message}`);
         }
     }
 }
 
-const buildBurnNFTDetails = async (
+const buildBuyNFTDetails = async (
     runtime: IAgentRuntime,
     message: Memory,
     state: State
-): Promise<burnNFTContent> => {
+): Promise<buyNFTContent> => {
     
     let currentState: State = state;
     if (!currentState) {
@@ -101,28 +116,28 @@ const buildBurnNFTDetails = async (
     }
     currentState = await runtime.updateRecentMessageState(currentState);
 
-    const burnNFTContext = composeContext({
+    const buyNFTContext = composeContext({
         state: currentState,
-        template: burnNFTTemplate,
+        template: buyNFTTemplate,
     });
 
     const content = await generateObjectDeprecated({
         runtime,
-        context: burnNFTContext,
+        context: buyNFTContext,
         modelClass: ModelClass.SMALL,
     });
 
-    const burnNFTContent = content as burnNFTContent;
+    const buyNFTContent = content as buyNFTContent;
 
-    return burnNFTContent;
+    return buyNFTContent;
 };
 
 export default {
-    name: "BURN_ONFT",
+    name: "BUY_NFT",
     similes: [
-        "burn NFT",
+        "buy NFT",
     ],
-    description: "Burn a NFT.",
+    description: "Buy a NFT.",
     handler: async (
         runtime: IAgentRuntime,
         message: Memory,
@@ -130,13 +145,13 @@ export default {
         _options: { [key: string]: unknown },
         callback?: HandlerCallback
     ) => {
-        elizaLogger.log("Starting BURN_NFT handler...");
-        const burnNFTDetails = await buildBurnNFTDetails(
+        elizaLogger.log("Starting BUY_NFT handler...");
+        const buyNFTDetails = await buildBuyNFTDetails(
             runtime,
             message,
             state
         );
-        const validationResult = isBurnNFTContent(burnNFTDetails);
+        const validationResult = isBuyNFTContent(buyNFTDetails);
         if (!validationResult.success) {
             if (callback) {
                 callback({
@@ -147,9 +162,9 @@ export default {
             return false;
         }
         try {
-            const action = new burnNFTAction();
-            const txHash = await action.burnNFT(
-                burnNFTDetails,
+            const action = new buyNFTAction();
+            const txHash = await action.buyNFT(
+                buyNFTDetails,
                 runtime,
                 message,
                 state
@@ -157,11 +172,9 @@ export default {
             state = await runtime.updateRecentMessageState(state);
 
             if (callback) {
-                let id = burnNFTDetails.id;
-                let recipient = burnNFTDetails.recipient;
-
+                let id = buyNFTDetails.listId;
                 callback({
-                    text: `Successfully burned NFT ${id} & hash: ${txHash}`,
+                    text: `Successfully buyed NFT ${id} & hash: ${txHash}`,
                     content: {
                         success: true,
                     },
@@ -171,16 +184,16 @@ export default {
         } catch (error) {
             if (callback) {
                 callback({
-                    text: `Failed to burn NFT: ${error.message}`,
+                    text: `Failed to buy NFT: ${error.message}`,
                     content: { error: error.message },
                 });
             }
             return false;
         }
     },
-    template: burnNFTExamples,
+    template: buyNFTExamples,
     validate: async (_runtime: IAgentRuntime) => {
         return true;
     },
-    examples: burnNFTExamples as ActionExample[][],
+    examples: buyNFTExamples as ActionExample[][],
 } as Action;

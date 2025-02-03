@@ -12,10 +12,10 @@ import {
     IAgentRuntime,
 } from "@elizaos/core";
 import { WalletProvider, walletProvider } from "../../../providers/wallet.ts";
-import { ONFTProvider } from "../../../providers/onft.ts";
+import { ONFTProvider } from "../../../providers/omniflix/onft.ts";
 import { bech32 } from "bech32";
 import { v4 as uuidv4 } from 'uuid';
-import mintONFTExamples from "../../../action_examples/onft/mint_nft.ts";
+import mintONFTExamples from "../../../action_examples/omniflix/onft/mint_nft.ts";
 const genUniqueID = (prefix) => {
     return prefix + uuidv4().replace(/-/g, '');
 };
