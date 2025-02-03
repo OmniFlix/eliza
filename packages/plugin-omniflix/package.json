@@ -15,8 +15,10 @@
         "bs58": "6.0.0",
         "bech32": "2.0.0",
         "cosmjs-types": "^0.8.0",
+        "flixjs": "^0.0.2",
         "node-cache": "5.1.2",
         "tsup": "8.3.5",
+        "uuid": "^10.0.0",
         "vitest": "2.1.4"
     },
     "scripts": {
