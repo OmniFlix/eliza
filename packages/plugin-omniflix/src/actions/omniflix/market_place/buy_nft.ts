@@ -63,8 +63,9 @@ Example response:
 {{recentMessages}}
 
 Given the recent messages, extract the following information about the requested buy NFT:
-- listId mentioned in the current message (required)
-- price mentioned in the current message (required) price contains amount and denom
+- listId : dont take example value (required) ask for the listId
+- denom : dont take example value (required) ask for the denom
+- amount : dont take example value (required) ask for the amount
 
 Respond with a JSON markdown block containing only the extracted values.`;
 

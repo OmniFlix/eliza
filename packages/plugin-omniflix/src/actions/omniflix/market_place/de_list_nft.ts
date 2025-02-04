@@ -52,7 +52,7 @@ Example response:
 {{recentMessages}}
 
 Given the recent messages, extract the following information about the requested de-list NFT:
-- listId mentioned in the current message (required)
+- listId : dont take example value (required) ask for the listId
 
 Respond with a JSON markdown block containing only the extracted values.`;
 

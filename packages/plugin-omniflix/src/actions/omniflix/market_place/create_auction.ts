@@ -81,12 +81,12 @@ Example response:
 {{recentMessages}}
 
 Given the recent messages, extract the following information about the requested create auction NFT from the current messages:
-- nftId mentioned in the current message, dont take example value (required) ask for the nftId
-- denomId mentioned in the current message, dont take example value (required) ask for the denomId
-- denom mentioned in the current message, dont take example value (required)
-- amount mentioned in the current message, dont take example value (required)
-- duration mentioned in the current message, dont take example value (required)
-- incrementPercentage mentioned in the current message, dont take example value (required)
+- nftId : dont take example value (required) ask for the nftId
+- denomId : dont take example value (required) ask for the denomId
+- denom : dont take example value (required)
+- amount : dont take example value (required)
+- duration : dont take example value (required)
+- incrementPercentage : dont take example value (required)
 
 Respond with a JSON markdown block containing only the extracted values.`;
 

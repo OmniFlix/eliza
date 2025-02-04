@@ -64,9 +64,9 @@ Example response:
 {{recentMessages}}
 
 Given the recent messages, extract the following information about the requested place bid:
-- auctionId mentioned in the current message (required)
-- amount mentioned in the current message (required)
-- denom mentioned in the current message (required)
+- auctionId : dont take example value  (required) ask for the auctionId 
+- amount : dont take example value  (required) ask for the amount
+- denom : dont take example value  (required) ask for the denom
 
 Respond with a JSON markdown block containing only the extracted values.`;
 
