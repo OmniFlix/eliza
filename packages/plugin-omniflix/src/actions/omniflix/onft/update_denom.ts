@@ -87,6 +87,9 @@ export class updateDenomAction {
                 params.previewUri || '',
                 params.royaltyReceivers || []
             );
+            if (response.code !== 0) {
+                throw new Error(`${response.rawLog}`);
+            } 
 
             return response.transactionHash;
         } catch (error) {

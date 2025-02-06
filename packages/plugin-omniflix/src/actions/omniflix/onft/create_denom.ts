@@ -100,10 +100,13 @@ export class createDenomAction {
                 params.uriHash || '',
                 params.data || '',
             );
+            if (response.code !== 0) {
+                throw new Error(`${response.rawLog}`);
+            }
 
             return response.transactionHash;
         } catch (error) {
-            throw new Error(`Transfer failed: ${error.message}`);
+            throw new Error(`Create Denom failed: ${error.message}`);
         }
     }
 }

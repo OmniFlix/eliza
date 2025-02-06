@@ -94,6 +94,9 @@ export class transferDenomAction {
                 params.id,
                 params.recipient
             );
+            if (response.code !== 0) {
+                throw new Error(`${response.rawLog}`);
+            }
 
             return response.transactionHash;
         } catch (error) {

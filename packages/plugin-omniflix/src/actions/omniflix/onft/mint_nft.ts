@@ -136,7 +136,9 @@ export class mintONFTAction {
                 params.royaltyShare || "10000000000000000",
                 params.recipient
             );
-            console.log('response', response);
+            if (response.code !== 0) {
+                throw new Error(`${response.rawLog}`);
+            }
             return response.transactionHash;
         } catch (error) {
             throw new Error(`Mint failed: ${error.message}`);

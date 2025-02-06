@@ -81,10 +81,12 @@ export class burnNFTAction {
                 params.id,
                 params.denomId
             );
-
+            if (response.code !== 0) {
+                throw new Error(`${response.rawLog}`);
+            }
             return response.transactionHash;
         } catch (error) {
-            throw new Error(`Transfer failed: ${error.message}`);
+            throw new Error(`NFT Burn failed: ${error.message}`);
         }
     }
 }

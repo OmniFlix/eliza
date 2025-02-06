@@ -102,9 +102,12 @@ export class transferNFTAction {
                 params.denomId,
                 params.recipient
             );
+            if (response.code !== 0) {
+                throw new Error(`${response.rawLog}`);
+            }
             return response.transactionHash;
         } catch (error) {
-            throw new Error(`Transfer failed: ${error.message}`);
+            throw new Error(`NFT Transfer failed: ${error.message}`);
         }
     }
 }
