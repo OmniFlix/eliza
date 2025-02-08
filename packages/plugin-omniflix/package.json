@@ -16,6 +16,7 @@
         "bech32": "2.0.0",
         "cosmjs-types": "^0.8.0",
         "flixjs": "^0.0.2",
+        "@omniflixnetwork/omniflixjs": "^0.1.0",
         "node-cache": "5.1.2",
         "tsup": "8.3.5",
         "uuid": "^10.0.0",

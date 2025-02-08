@@ -1,9 +1,7 @@
 import { elizaLogger } from "@elizaos/core";
 import { DeliverTxResponse } from "@cosmjs/stargate";
 import { WalletProvider } from "../wallet";
-import { Coin } from "@cosmjs/stargate";
-import { MsgListNFT, MsgDeListNFT, MsgBuyNFT, MsgCreateAuction, MsgPlaceBid, MsgCancelAuction } from 'flixjs/OmniFlix/marketplace/v1beta1/tx';
-
+import { MsgListNFT, MsgDeListNFT, MsgBuyNFT, MsgCreateAuction, MsgPlaceBid, MsgCancelAuction } from '@omniflixnetwork/omniflixjs/OmniFlix/marketplace/v1beta1/tx';
 
 export class MarketPlaceProvider {
     private wallet: WalletProvider;

@@ -1,7 +1,7 @@
 import { elizaLogger } from "@elizaos/core";
 import { DeliverTxResponse } from "@cosmjs/stargate";
 import { WalletProvider } from "../wallet";
-import { MsgCreateDenom, MsgUpdateDenom, MsgTransferDenom, MsgMintONFT, MsgTransferONFT, MsgBurnONFT } from 'flixjs/OmniFlix/onft/v1beta1/tx';
+import { MsgCreateDenom, MsgUpdateDenom, MsgTransferDenom, MsgMintONFT, MsgTransferONFT, MsgBurnONFT } from '@omniflixnetwork/omniflixjs/OmniFlix/onft/v1beta1/tx';
 
 export class ONFTProvider {
     private wallet: WalletProvider;
