@@ -33,23 +33,30 @@ interface validationResult {
 }
 
 function isListNFTContent(content: Content): validationResult {
-    let msg = "";
+    const missingFields: string[] = [];
+
     if (!content.nftId) {
-        msg += "Please provide a nftId to list the NFT.";
+        missingFields.push("nftId");
+    } else if (!(content.nftId as string).startsWith("onft")) {
+        missingFields.push("valid nftId");
     }
     if (!content.denomId) {
-        msg += "Please provide a denomId for the of given NFT.";
+        missingFields.push("denomId");
+    } else if (!(content.denomId as string).startsWith("onftdenom")) {
+        missingFields.push("valid denomId");
     }
     if (!content.denom) {
-        msg += "Please provide a denom for the of given NFT.";
+        missingFields.push("denom");
     }
     if (!content.amount) {
-        msg += "Please provide a amount for the of given NFT.";
+        missingFields.push("amount");
     }
-    if (msg !== "") {
+
+    if (missingFields.length > 0) {
+        const message = `Please provide ${missingFields.join(", ")} for the given NFT.`;
         return {
             success: false,
-            message: msg,
+            message: message,
         };
     }
     return {
@@ -75,8 +82,8 @@ Example response:
 Given the recent messages, extract the following information about the requested list NFT from the current messages:
 - nftId : dont take example value  (required) ask for the nftId not consider from example
 - denomId : dont take example value  (required) ask for the denomId not consider from example
-- denom : dont take example value , dont take example value (required)
-- amount : dont take example value , dont take example value (required) 
+- amount : mentioned in the current message or recent messages (if any)
+- denom : mentioned in the current message or recent messages (if any)
 
 Respond with a JSON markdown block containing only the extracted values from the current messages.`;
 
@@ -103,7 +110,6 @@ export class listNFTAction {
                     params.amount = Number.parseInt(params.amount) * 1000000;
                 }
             }
-            console.log("params", params);
             const response = await marketPlaceProvider.listNFT(
                 genUniqueID("list"),
                 params.nftId,
@@ -113,9 +119,13 @@ export class listNFTAction {
                 params.splitShares || []
             );
 
+            if (response.code !== 0) {
+                throw new Error(`${response.rawLog}`);
+            }
+
             return response.transactionHash;
         } catch (error) {
-            throw new Error(`List failed: ${error.message}`);
+            throw new Error(`${error.message}`);
         }
     }
 }
@@ -167,7 +177,6 @@ export default {
             message,
             state
         );
-        console.log("listNFTDetails", listNFTDetails);
         const validationResult = isListNFTContent(listNFTDetails);
         if (!validationResult.success) {
             if (callback) {
@@ -191,7 +200,7 @@ export default {
             if (callback) {
                 let id = listNFTDetails.nftId;
                 callback({
-                    text: `Successfully listed NFT ${id} & hash: ${txHash}`,
+                    text: `✅Successfully listed NFT ${id} & hash: ${txHash}`,
                     content: {
                         success: true,
                     },

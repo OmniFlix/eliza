@@ -1,35 +1,48 @@
 export default [
     [
         {
-            user: "{{user1}}",
-            content: { text: "Buy NFT" }
+            user: "{{user2}}",
+            content: { text: "I want to buy an NFT." }
         },
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "I'll help you buy an NFT. Please provide the listId, price.",
+                text: "Sure! Please provide the listId and amount.",
                 action: "NONE"
             }
         },
         {
-            user: "{{user1}}",
-            content: { text: "list..." }
+            user: "{{user2}}",
+            content: { text: "listId: list123, amount: 5, denom: ETH" }
         },
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given list id is 'list...'. Please provide price",
+                text: "I'll proceed to buy the NFT with list id 'list123' for '5 ETH'.",
+                action: "BUY_NFT"
+            }
+        },
+    ],
+    [
+        {
+            user: "{{user5}}",
+            content: { text: "Buy NFT now!" }
+        },
+        {
+            user: "{{FlixAgent}}",
+            content: { 
+                text: "Please provide the listId and amount to proceed.",
                 action: "NONE"
             }
         },
         {
-            user: "{{user1}}",
-            content: { text: "amount: 10 denom: FLIX" }
+            user: "{{user5}}",
+            content: { text: "listId: list789, amount: 3, denom: FLIX" }
         },
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "I'll buy the NFT with list id 'list...', price '10FLIX'.",
+                text: "✅ Successfully bought NFT with list id 'list789' for '3 FLIX'.",
                 action: "BUY_NFT"
             }
         },

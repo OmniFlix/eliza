@@ -27,20 +27,20 @@ interface validationResult {
 }
 
 function isPlaceBidContent(content: Content): validationResult {
-    let msg = "";
+    const missingFields: string[] = [];
     if (!content.auctionId) {
-        msg += "Please provide a auctionId to place the bid.";
+        missingFields.push("auctionId");
     }
     if (!content.amount) {
-        msg += "Please provide a amount to place the bid.";
+        missingFields.push("amount");
     }
     if (!content.denom) {
-        msg += "Please provide a denom to place the bid.";
+        missingFields.push("denom");
     }
-    if (msg !== "") {
+    if (missingFields.length > 0) {
         return {
             success: false,
-            message: msg,
+            message: `Please provide the following fields: ${missingFields.join(", ")}.`,
         };
     }
     return {
@@ -64,9 +64,9 @@ Example response:
 {{recentMessages}}
 
 Given the recent messages, extract the following information about the requested place bid:
-- auctionId : dont take example value  (required) ask for the auctionId 
-- amount : dont take example value  (required) ask for the amount
-- denom : dont take example value  (required) ask for the denom
+- auctionId : dont take example value  (required) ask for the auctionId not consider from example
+- amount : mentioned in the current message or recent messages (if any)
+- denom : mentioned in the current message or recent messages (if any)
 
 Respond with a JSON markdown block containing only the extracted values.`;
 
@@ -90,7 +90,12 @@ export class placeBidAction {
                 if (typeof params.amount === "number") {
                     params.amount = params.amount * 1000000;
                 } else if (typeof params.amount === "string") {
-                    params.amount = Number.parseInt(params.amount) * 1000000;
+                    const parsedAmount = Number.parseFloat(params.amount);
+                    if (!isNaN(parsedAmount)) {
+                        params.amount = parsedAmount * 1000000;
+                    } else {
+                        throw new Error("Invalid amount provided.");
+                    }
                 }
             }
             const response = await marketPlaceProvider.placeBid(
@@ -98,10 +103,13 @@ export class placeBidAction {
                 params.denom,
                 params.amount,
             );
+            if (!response || response.code !==0) {
+                throw new Error(`${response.rawLog}`);
+            }
 
             return response.transactionHash;
         } catch (error) {
-            throw new Error(`Place Bid failed: ${error.message}`);
+            throw new Error(`${error.message}`);
         }
     }
 }
@@ -153,9 +161,7 @@ export default {
             message,
             state
         );
-        console.log("placeBidDetails", placeBidDetails);
         const validationResult = isPlaceBidContent(placeBidDetails);
-        console.log("validationResult", validationResult);
         if (!validationResult.success) {
             if (callback) {
                 callback({
@@ -178,7 +184,7 @@ export default {
             if (callback) {
                 let id = placeBidDetails.listId;
                 callback({
-                    text: `Successfully placed bid ${id} & hash: ${txHash}`,
+                    text: `✅ Successfully placed bid ${id} & hash: ${txHash}`,
                     content: {
                         success: true,
                     },

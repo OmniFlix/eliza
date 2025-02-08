@@ -32,39 +32,52 @@ interface validationResult {
 }
 
 function isCreateAuctionContent(content: Content): validationResult {
-    let msg = "";
+    const missingFields: string[] = [];
+
     if (!content.nftId) {
-        msg += "Please provide a nftId to create a new auction.";
+        missingFields.push("nftId");
+    } else if (!(content.nftId as string).startsWith("onft")) {
+        missingFields.push("valid nftId");
     }
     if (!content.denomId) {
-        msg += "Please provide a denomId of given NFT.";
+        missingFields.push("denomId");
+    } else if (!(content.denomId as string).startsWith("onftdenom")) {
+        missingFields.push("valid denomId");
     }
     if (!content.denom) {
-        msg += "Please provide a denom for the of given NFT.";
+        missingFields.push("denom");
     }
     if (!content.amount) {
-        msg += "Please provide a amount for the auction.";
+        missingFields.push("amount");
     }
     if (!content.duration) {
-        msg += "Please provide a duration for the auction.";
+        missingFields.push("duration");
     }
     if (!content.incrementPercentage) {
-        msg += "Please provide an incrementPercentage for the auction.";
+        missingFields.push("incrementPercentage");
     }
-    console.log("content", content);
-    if (msg !== "") {
+
+    if (missingFields.length > 0) {
         return {
             success: false,
-            message: msg,
+            message: `Please provide the following: ${missingFields.join(", ")}.`,
         };
     }
+
     return {
         success: true,
-        message: "create auction request is valid.",
+        message: "Create auction request is valid.",
     };
 }
 
-const createAuctionTemplate = `Respond with a JSON markdown block containing only the extracted values.Take all the values from the current messages, Don't consider the example values.
+const createAuctionTemplate = `Respond with a JSON markdown block containing only the extracted values. Take all the values from the current messages. Please provide the following information:
+
+- nftId: (required) Please provide the nftId.
+- denomId: (required) Please provide the denomId.
+- denom: (optional) Please provide the denom.
+- amount: (required) Please provide the amount.
+- duration: (required) Please provide the duration.
+- incrementPercentage: (required) Please provide the increment percentage.
 
 Example response:
 \`\`\`json
@@ -74,21 +87,13 @@ Example response:
    "denom": "uflix...",
    "amount": "1000000...",
    "duration": 10,
-   "incrementPercentage": 10,
+   "incrementPercentage": 10
 }
 \`\`\`
 
 {{recentMessages}}
 
-Given the recent messages, extract the following information about the requested create auction NFT from the current messages:
-- nftId : dont take example value (required) ask for the nftId
-- denomId : dont take example value (required) ask for the denomId
-- denom : dont take example value (required)
-- amount : dont take example value (required)
-- duration : dont take example value (required)
-- incrementPercentage : dont take example value (required)
-
-Respond with a JSON markdown block containing only the extracted values.`;
+Given the recent messages, extract the required information about the requested create auction NFT.`;
 
 export class createAuctionAction {
     async createAuction(
@@ -126,10 +131,13 @@ export class createAuctionAction {
                 params.whitelistAccounts || [],
                 params.splitShares || []
             );
+            if (!response || response.code !== 0) {
+                throw new Error(`${response.rawLog}`);
+            }
 
             return response.transactionHash;
         } catch (error) {
-            throw new Error(`create auction failed: ${error.message}`);
+            throw new Error(`${error.message}`);
         }
     }
 }
@@ -205,7 +213,7 @@ export default {
 
             if (callback) {
                 callback({
-                    text: `Successfully created auction & hash: ${txHash}`,
+                    text: `✅ Successfully created auction & hash: ${txHash}`,
                     content: {
                         success: true,
                     },

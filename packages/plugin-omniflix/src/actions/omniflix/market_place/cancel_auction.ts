@@ -74,10 +74,12 @@ export class cancelAuctionAction {
             const response = await marketPlaceProvider.cancelAuction(
                 params.auctionId
             );
-
+            if (!response || response.code !== 0) {
+                throw new Error(`${response.rawLog}`);
+            }
             return response.transactionHash;
         } catch (error) {
-            throw new Error(`Cancel auction failed: ${error.message}`);
+            throw new Error(`${error.message}`);
         }
     }
 }
@@ -152,7 +154,7 @@ export default {
             if (callback) {
                 let id = cancelAuctionDetails.auctionId;
                 callback({
-                    text: `Successfully cancelled auction ${id} & hash: ${txHash}`,
+                    text: `✅Successfully cancelled auction ${id} & hash: ${txHash}`,
                     content: {
                         success: true,
                     },

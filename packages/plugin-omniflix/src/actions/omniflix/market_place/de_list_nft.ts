@@ -27,6 +27,8 @@ function isDeListNFTContent(content: Content): validationResult {
     let msg = "";
     if (!content.listId) {
         msg += "Please provide listId to de-list the NFT.";
+    } else if (content.listId && !(content.listId as string).startsWith("list")) {
+        msg += "Please provide a valid listId to de-list the NFT.";
     }
     if (msg !== "") {
         return {
@@ -52,7 +54,7 @@ Example response:
 {{recentMessages}}
 
 Given the recent messages, extract the following information about the requested de-list NFT:
-- listId : dont take example value (required) ask for the listId
+- listId : mentioned in the current message or recent messages (if any)
 
 Respond with a JSON markdown block containing only the extracted values.`;
 
@@ -74,10 +76,13 @@ export class deListNFTAction {
             const response = await marketPlaceProvider.deListNFT(
                 params.listId
             );
+            if (!response || response.code !== 0) {
+                throw new Error(`${response.rawLog}`);
+            }
 
             return response.transactionHash;
         } catch (error) {
-            throw new Error(`De-list failed: ${error.message}`);
+            throw new Error(`${error.message}`);
         }
     }
 }
@@ -152,7 +157,7 @@ export default {
             if (callback) {
                 let id = deListNFTDetails.listId;
                 callback({
-                    text: `Successfully de-listed NFT ${id} & hash: ${txHash}`,
+                    text: `✅ Successfully de-listed NFT ${id} & hash: ${txHash}`,
                     content: {
                         success: true,
                     },

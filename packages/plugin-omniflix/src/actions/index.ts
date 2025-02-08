@@ -3,7 +3,6 @@ import { stakingActions } from "./staking";
 import { govActions } from "./gov";
 import { onftActions } from "./omniflix/onft";
 import { marketPlaceActions } from "./omniflix/market_place";
-import { streampayActions } from "./omniflix/streampay";
 
 export const actions = [
     ...bankActions, 
@@ -11,7 +10,6 @@ export const actions = [
     ...govActions, 
     ...onftActions,
     ...marketPlaceActions,
-    ...streampayActions
 ];
 
 export default actions;

@@ -27,20 +27,24 @@ interface validationResult {
 }
 
 function isBuyNFTContent(content: Content): validationResult {
-    let msg = "";
+    const missingFields: string[] = [];
+
     if (!content.listId) {
-        msg += "Please provide a listId to buy the NFT.";
+        missingFields.push("listId");
+    } else if (!(content.listId as string).startsWith("list")) {
+        missingFields.push("valid listId");
     }
     if (!content.amount) {
-        msg += "Please provide an amount to buy the NFT.";
+        missingFields.push("amount");
     }
     if (!content.denom) {
-        msg += "Please provide a denom to buy the NFT.";
+        missingFields.push("denom");
     }
-    if (msg !== "") {
+    if (missingFields.length > 0) {
+        const message = `Please provide ${missingFields.join(", ")} for the given NFT to Buy NFT.`;
         return {
             success: false,
-            message: msg,
+            message: message,
         };
     }
     return {
@@ -97,10 +101,13 @@ export class buyNFTAction {
                 params.amount,
                 params.denom
             );
+            if (!response || response.code !== 0) {
+                throw new Error(`${response.rawLog}`);
+            }
 
             return response.transactionHash;
         } catch (error) {
-            throw new Error(`Buy failed: ${error.message}`);
+            throw new Error(`${error.message}`);
         }
     }
 }
@@ -137,6 +144,7 @@ export default {
     name: "BUY_NFT",
     similes: [
         "buy NFT",
+        "buy nft",
     ],
     description: "Buy a NFT.",
     handler: async (
@@ -175,7 +183,7 @@ export default {
             if (callback) {
                 let id = buyNFTDetails.listId;
                 callback({
-                    text: `Successfully buyed NFT ${id} & hash: ${txHash}`,
+                    text: `✅ Successfully buyed NFT ${id} & hash: ${txHash}`,
                     content: {
                         success: true,
                     },
