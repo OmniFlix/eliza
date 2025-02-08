@@ -76,9 +76,9 @@ Example response:
 {{recentMessages}}
 
 Given the recent messages, extract the following information about the requested collection creation:
-- id mentioned in the current message
-- denom Id in the current message
-- recipient mentioned in the current message
+- id mentioned in the current message required and don't take it from example
+- denom Id in the current message required and don't take it from example
+- recipient mentioned in the current message required and don't take it from example
 
 Respond with a JSON markdown block containing only the extracted values.`;
 

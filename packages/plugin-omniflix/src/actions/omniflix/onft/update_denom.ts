@@ -60,8 +60,11 @@ Example response:
 {{recentMessages}}
 
 Given the recent messages, extract the following information about the requested collection creation:
-- id mentioned in the current message
-- name is mentioned in the current message
+- id mentioned in the current message required
+- name is mentioned in the current message optional
+- description is mentioned in the current message optional
+- previewUri is mentioned in the current message optional
+- royaltyReceivers is mentioned in the current message optional
 
 Respond with a JSON markdown block containing only the extracted values.`;
 
