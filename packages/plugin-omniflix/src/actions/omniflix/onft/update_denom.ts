@@ -20,7 +20,7 @@ export interface updateDenomContent extends Content {
     name: string;
     description?: string;
     previewUri?: string;
-    royaltyReceivers: Array<Object>;
+    royaltyReceivers?: Array<Object>;
 }
 
 interface validationResult {
