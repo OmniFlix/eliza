@@ -1,8 +1,9 @@
 import { elizaLogger } from "@elizaos/core";
-import { DeliverTxResponse } from "@cosmjs/stargate";
+import { DeliverTxResponse, createProtobufRpcClient, QueryClient } from "@cosmjs/stargate";
+import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 import { WalletProvider } from "../wallet";
 import { MsgListNFT, MsgDeListNFT, MsgBuyNFT, MsgCreateAuction, MsgPlaceBid, MsgCancelAuction } from '@omniflixnetwork/omniflixjs/OmniFlix/marketplace/v1beta1/tx';
-
+import { QueryClientImpl } from "@omniflixnetwork/omniflixjs/OmniFlix/marketplace/v1beta1/query";
 export class MarketPlaceProvider {
     private wallet: WalletProvider;
 
@@ -288,4 +289,78 @@ export class MarketPlaceProvider {
         }
     }
 
+    async getListingByPriceDenom(
+            denom: string,
+        ): Promise<any> {
+            try {
+                const address = await this.wallet.getAddress();
+                if (!address) {
+                    throw new Error("Could not get address");
+                }
+    
+                let tmClient;
+                const rpcEndpoint = process.env.OMNIFLIX_RPC_ENDPOINT;
+    
+                if (!rpcEndpoint) {
+                    elizaLogger.error("RPC endpoint not found");
+                    return null;
+                }
+                tmClient = await Tendermint34Client.connect(rpcEndpoint);
+                
+                // Create query client
+                const queryClient = QueryClient.withExtensions(tmClient);
+                const rpcClient = createProtobufRpcClient(queryClient);
+                
+                // Create OmniFlix query client
+                const onftQueryClient = new QueryClientImpl(rpcClient);
+    
+                // Make the Query Request to get only denom info
+                const response = await onftQueryClient.Listings({
+                    owner: address,
+                    priceDenom: denom,
+                });
+                console.log(response);
+            return response.listings;
+            } catch (e) {
+                elizaLogger.error(`Error in getListings: ${e}`);
+                throw e;
+            }
+    }
+
+    async getListing(
+        listId: string,
+    ): Promise<any> {
+        try {
+            const address = await this.wallet.getAddress();
+            if (!address) {
+                throw new Error("Could not get address");
+            }
+
+            let tmClient;
+            const rpcEndpoint = process.env.OMNIFLIX_RPC_ENDPOINT;
+
+            if (!rpcEndpoint) {
+                elizaLogger.error("RPC endpoint not found");
+                return null;
+            }
+            tmClient = await Tendermint34Client.connect(rpcEndpoint);
+            
+            // Create query client
+            const queryClient = QueryClient.withExtensions(tmClient);
+            const rpcClient = createProtobufRpcClient(queryClient);
+            
+            // Create OmniFlix query client
+            const onftQueryClient = new QueryClientImpl(rpcClient);
+
+            // Make the Query Request to get only denom info
+            const response = await onftQueryClient.Listing({
+                id: listId,
+            });
+            console.log(response);
+        return response.listing;
+        } catch (e) {
+            elizaLogger.error(`Error in getListings: ${e}`);
+            throw e;
+        }
+}
 }

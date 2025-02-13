@@ -5,6 +5,8 @@ import buyNFT from "./buy_nft.ts";
 import createAuction from "./create_auction.ts";
 import placeBid from "./place_bid.ts";
 import cancelAuction from "./cancel_auction.ts";
+import getListingsByPriceDenom from "./get_listings_by_price_denom.ts";
+import getListing from "./get_listing.ts";
 
 export const marketPlaceActions: Action[] = [
     listNFT,
@@ -12,6 +14,8 @@ export const marketPlaceActions: Action[] = [
     buyNFT,
     createAuction,
     placeBid,
-    cancelAuction
+    cancelAuction,
+    getListingsByPriceDenom,
+    getListing,
 ];
 export default marketPlaceActions;
