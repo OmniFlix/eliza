@@ -157,10 +157,11 @@ export class TokenFactoryProvider {
             typeUrl: "/osmosis.tokenfactory.v1beta1.MsgForceTransfer",
             value: MsgForceTransfer.fromPartial({
                 sender: sender,
-                recipient: recipient,
+                transferFromAddress: sender,
+                transferToAddress: recipient,
                 amount: {
                     denom: denom,
-                    amount: amount
+                    amount: amount.toString(),
                 }
             })
         };
@@ -175,7 +176,7 @@ export class TokenFactoryProvider {
         );
     }
 
-    async updateParams(params: Params): Promise<DeliverTxResponse> {
+    async updateParams(authority: string, params: any): Promise<DeliverTxResponse> {
         const address = await this.wallet.getAddress();
         const client = await this.wallet.getClient();
         client.registry.register("/osmosis.tokenfactory.v1beta1.MsgUpdateParams", MsgUpdateParams);
