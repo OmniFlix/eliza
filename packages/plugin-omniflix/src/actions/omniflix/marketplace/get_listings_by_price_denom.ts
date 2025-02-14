@@ -51,7 +51,7 @@ Example response:
 
 {{recentMessages}}
 
-Given the recent messages, extract the following information about the requested de-list NFT:
+Given the recent messages, extract the following information about the requested listings by price denom:
 - denom : mentioned in the current message or recent messages (if any)
 
 Respond with a JSON markdown block containing only the extracted values.`;
@@ -97,14 +97,14 @@ const buildGetListingByPriceDenomDetails = async (
     }
     currentState = await runtime.updateRecentMessageState(currentState);
 
-    const getListingByPriceDenomContext = composeContext({
+    const getListingsByPriceDenomContext = composeContext({
         state: currentState,
         template: getListingsByPriceDenomTemplate,
     });
 
     const content = await generateObjectDeprecated({
         runtime,
-        context: getListingByPriceDenomContext,
+        context: getListingsByPriceDenomContext,
         modelClass: ModelClass.SMALL,
     });
 
@@ -127,12 +127,12 @@ export default {
         callback?: HandlerCallback
     ) => {
         elizaLogger.log("Starting Get listing by price denom handler...");
-        const getListingByPriceDenomDetails = await buildGetListingByPriceDenomDetails(
+        const getListingsByPriceDenomDetails = await buildGetListingByPriceDenomDetails(
             runtime,
             message,
             state
         );
-        const validationResult = isGetListingsByPriceDenomContent(getListingByPriceDenomDetails);
+        const validationResult = isGetListingsByPriceDenomContent(getListingsByPriceDenomDetails);
         if (!validationResult.success) {
             if (callback) {
                 callback({
@@ -145,7 +145,7 @@ export default {
         try {
             const action = new getListingsByPriceDenomAction();
             const response = await action.getListingsByPriceDenom(
-                getListingByPriceDenomDetails,
+                getListingsByPriceDenomDetails,
                 runtime,
                 message,
                 state

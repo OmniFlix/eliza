@@ -13,22 +13,20 @@ import {
 } from "@elizaos/core";
 import { WalletProvider, walletProvider } from "../../../providers/wallet.ts";
 import { MarketPlaceProvider } from "../../../providers/omniflix/marketplace.ts";
-import getListingExamples from "../../../action_examples/omniflix/marketplace/get_listing.ts";
+import getAuctionExamples from "../../../action_examples/omniflix/marketplace/get_auction.ts";
 
-export interface getListingContent extends Content {
-    listId: string;
+export interface getAuctionContent extends Content {
+    auctionId: string;
 }
 interface validationResult {
     success: boolean;
     message: string;
 }
 
-function isgetListingContent(content: Content): validationResult {
+function isgetAuctionContent(content: Content): validationResult {
     let msg = "";
-    if (!content.listId) {
-        msg += "Please provide listId to fetch the list.";
-    } else if (content.listId && !(content.listId as string).startsWith("list")) {
-        msg += "Please provide a valid listId to fetch list.";
+    if (!content.auctionId) {
+        msg += "Please provide auctionId to fetch the auction.";
     }
     if (msg !== "") {
         return {
@@ -38,29 +36,29 @@ function isgetListingContent(content: Content): validationResult {
     }
     return {
         success: true,
-        message: "fetch list request is valid.",
+        message: "fetch auction request is valid.",
     };
 }
 
-const getListingTemplate = `Respond with a JSON markdown block containing only the extracted values.
+const getAuctionTemplate = `Respond with a JSON markdown block containing only the extracted values.
 
 Example response:
 \`\`\`json
 {
-   "listId": "list.."
+   "auctionId": 22
 }
 \`\`\`
 
 {{recentMessages}}
 
-Given the recent messages, extract the following information about the requested list:
-- listId : mentioned in the current message or recent messages (if any)
+Given the recent messages, extract the following information about the requested auction:
+- auctionId : mentioned in the current message
 
 Respond with a JSON markdown block containing only the extracted values.`;
 
-export class getListingAction {
-    async getListing(
-        params: getListingContent,
+export class getAuctionAction {
+    async getAuction(
+        params: getAuctionContent,
         runtime: IAgentRuntime,
         message: Memory,
         state: State
@@ -73,8 +71,8 @@ export class getListingAction {
             );
 
             const marketPlaceProvider = new MarketPlaceProvider(wallet);
-            const response = await marketPlaceProvider.getListing(
-                params.listId
+            const response = await marketPlaceProvider.getAuction(
+                params.auctionId
             );
             if (!response || response.code !== 0) {
                 throw new Error(`${response.rawLog}`);
@@ -87,11 +85,11 @@ export class getListingAction {
     }
 }
 
-const buildGetListingDetails = async (
+const buildGetAuctionDetails = async (
     runtime: IAgentRuntime,
     message: Memory,
     state: State
-): Promise<getListingContent> => {
+): Promise<getAuctionContent> => {
     
     let currentState: State = state;
     if (!currentState) {
@@ -99,28 +97,28 @@ const buildGetListingDetails = async (
     }
     currentState = await runtime.updateRecentMessageState(currentState);
 
-    const getListingContext = composeContext({
+    const getAuctionContext = composeContext({
         state: currentState,
-        template: getListingTemplate,
+        template: getAuctionTemplate,
     });
 
     const content = await generateObjectDeprecated({
         runtime,
-        context: getListingContext,
+        context: getAuctionContext,
         modelClass: ModelClass.SMALL,
     });
 
-    const getListingContent = content as getListingContent;
+    const getAuctionContent = content as getAuctionContent;
 
-    return getListingContent;
+    return getAuctionContent;
 };
 
 export default {
-    name: "GET_LISTING",
+    name: "GET_AUCTION",
     similes: [
-        "fetch list",
+        "fetch auction",
     ],
-    description: "get list.",
+    description: "get auction.",
     handler: async (
         runtime: IAgentRuntime,
         message: Memory,
@@ -128,13 +126,13 @@ export default {
         _options: { [key: string]: unknown },
         callback?: HandlerCallback
     ) => {
-        elizaLogger.log("Starting GET LISTING handler...");
-        const getListingDetails = await buildGetListingDetails(
+        elizaLogger.log("Starting GET AUCTION handler...");
+        const getAuctionDetails = await buildGetAuctionDetails(
             runtime,
             message,
             state
         );
-        const validationResult = isgetListingContent(getListingDetails);
+        const validationResult = isgetAuctionContent(getAuctionDetails);
         if (!validationResult.success) {
             if (callback) {
                 callback({
@@ -145,9 +143,9 @@ export default {
             return false;
         }
         try {
-            const action = new getListingAction();
-            const response = await action.getListing(
-                getListingDetails,
+            const action = new getAuctionAction();
+            const response = await action.getAuction(
+                getAuctionDetails,
                 runtime,
                 message,
                 state
@@ -156,7 +154,7 @@ export default {
 
             if (callback) {
                 callback({
-                    text: `✅ Successfully retrieved listing details ${JSON.stringify(response, null, 2)}`,
+                    text: `✅ Successfully retrieved auction details ${JSON.stringify(response, null, 2)}`,
                     content: {
                         success: true,
                     },
@@ -166,16 +164,16 @@ export default {
         } catch (error) {
             if (callback) {
                 callback({
-                    text: `Failed to retrieve listing details: ${error.message}`,
+                    text: `Failed to retrieve auction details: ${error.message}`,
                     content: { error: error.message },
                 });
             }
             return false;
         }
     },
-    template: getListingTemplate,
+    template: getAuctionTemplate,
     validate: async (_runtime: IAgentRuntime) => {
         return true;
     },
-    examples: getListingExamples as ActionExample[][],
+    examples: getAuctionExamples as ActionExample[][],
 } as Action;

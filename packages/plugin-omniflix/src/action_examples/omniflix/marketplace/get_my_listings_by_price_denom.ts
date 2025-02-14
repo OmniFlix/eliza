@@ -2,12 +2,12 @@ export default [
     [
         {
             user: "{{user1}}",
-            content: { text: "fetch listings by price denom" }
+            content: { text: "fetch my listings by price denom" }
         },
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "I'll help you fetch listings. Please provide the price denom.",
+                text: "I'll help fetch your listings. Please provide the price denom.",
                 action: "NONE"
             }
         },
@@ -19,7 +19,7 @@ export default [
             user: "{{FlixAgent}}",
             content: { 
                 text: "Given price denom is uflix'.",
-                action: "GET_LISTINGS_BY_PRICE_DENOM"
+                action: "GET_MY_LISTINGS_BY_PRICE_DENOM"
             }
         }
     ],
@@ -27,14 +27,14 @@ export default [
         {
             user: "{{user1}}",
             content: { 
-                text: "fetch listing by price denom: uflix':",
+                text: "fetch my listing by price denom: uflix':",
             }
         },
         {
             user: "{{FlixAgent}}",
             content: { 
                 text: "Here are the listings with price denom uflix':",
-                action: "GET_LISTINGS_BY_PRICE_DENOM"
+                action: "GET_MY_LISTINGS_BY_PRICE_DENOM"
             }
         }
     ]

@@ -289,7 +289,7 @@ export class MarketPlaceProvider {
         }
     }
 
-    async getListingByPriceDenom(
+    async getMyListingByPriceDenom(
             denom: string,
         ): Promise<any> {
             try {
@@ -322,7 +322,7 @@ export class MarketPlaceProvider {
                 console.log(response);
             return response.listings;
             } catch (e) {
-                elizaLogger.error(`Error in getListings: ${e}`);
+                elizaLogger.error(`Error in fetching listings for denom: ${e}`);
                 throw e;
             }
     }
@@ -362,5 +362,361 @@ export class MarketPlaceProvider {
             elizaLogger.error(`Error in getListings: ${e}`);
             throw e;
         }
-}
+    }
+
+    async getMyListings(): Promise<any> {
+        try {
+            const address = await this.wallet.getAddress();
+            if (!address) {
+                throw new Error("Could not get address");
+            }
+
+            let tmClient;
+            const rpcEndpoint = process.env.OMNIFLIX_RPC_ENDPOINT;
+
+            if (!rpcEndpoint) {
+                elizaLogger.error("RPC endpoint not found");
+                return null;
+            }
+            tmClient = await Tendermint34Client.connect(rpcEndpoint);
+            
+            // Create query client
+            const queryClient = QueryClient.withExtensions(tmClient);
+            const rpcClient = createProtobufRpcClient(queryClient);
+            
+            // Create OmniFlix query client
+            const onftQueryClient = new QueryClientImpl(rpcClient);
+
+            // Make the Query Request to get only denom info
+            const response = await onftQueryClient.ListingsByOwner({
+                owner: address,
+            });
+            console.log(response);
+        return response.listings;
+        } catch (e) {
+            elizaLogger.error(`Error in getListings: ${e}`);
+            throw e;
+        }
+    }
+
+    async getListingByNFTId(
+        nftId: string,
+    ): Promise<any> {
+        try {
+
+            let tmClient;
+            const rpcEndpoint = process.env.OMNIFLIX_RPC_ENDPOINT;
+
+            if (!rpcEndpoint) {
+                elizaLogger.error("RPC endpoint not found");
+                return null;
+            }
+            tmClient = await Tendermint34Client.connect(rpcEndpoint);
+            
+            // Create query client
+            const queryClient = QueryClient.withExtensions(tmClient);
+            const rpcClient = createProtobufRpcClient(queryClient);
+            
+            // Create OmniFlix query client
+            const onftQueryClient = new QueryClientImpl(rpcClient);
+
+            // Make the Query Request to get only denom info
+            const response = await onftQueryClient.ListingByNftId({
+                nftId,
+            });
+        return response.listing;
+        } catch (e) {
+            elizaLogger.error(`Error in get list by NFT ID: ${e}`);
+            throw e;
+        }
+    }
+
+    async getListingByPriceDenom(
+        denom: string,
+    ): Promise<any> {
+        try {
+            const address = await this.wallet.getAddress();
+            if (!address) {
+                throw new Error("Could not get address");
+            }
+
+            let tmClient;
+            const rpcEndpoint = process.env.OMNIFLIX_RPC_ENDPOINT;
+
+            if (!rpcEndpoint) {
+                elizaLogger.error("RPC endpoint not found");
+                return null;
+            }
+            tmClient = await Tendermint34Client.connect(rpcEndpoint);
+            
+            // Create query client
+            const queryClient = QueryClient.withExtensions(tmClient);
+            const rpcClient = createProtobufRpcClient(queryClient);
+            
+            // Create OmniFlix query client
+            const onftQueryClient = new QueryClientImpl(rpcClient);
+
+            // Make the Query Request to get only denom info
+            const response = await onftQueryClient.ListingsByPriceDenom({
+                priceDenom: denom,
+            });
+            console.log(response);
+        return response.listings;
+        } catch (e) {
+            elizaLogger.error(`Error in fetching listings by denom: ${e}`);
+            throw e;
+        }
+    }
+
+    async getMyAuctionsByPriceDenom(
+        denom: string,
+    ): Promise<any> {
+        try {
+            const address = await this.wallet.getAddress();
+            if (!address) {
+                throw new Error("Could not get address");
+            }
+
+            let tmClient;
+            const rpcEndpoint = process.env.OMNIFLIX_RPC_ENDPOINT;
+
+            if (!rpcEndpoint) {
+                elizaLogger.error("RPC endpoint not found");
+                return null;
+            }
+            tmClient = await Tendermint34Client.connect(rpcEndpoint);
+            
+            // Create query client
+            const queryClient = QueryClient.withExtensions(tmClient);
+            const rpcClient = createProtobufRpcClient(queryClient);
+            
+            // Create OmniFlix query client
+            const onftQueryClient = new QueryClientImpl(rpcClient);
+
+            // Make the Query Request to get only denom info
+            const response = await onftQueryClient.Auctions({
+                owner: address,
+                priceDenom: denom,
+                status: 2,
+            });
+            return response.auctions;
+        } catch (e) {
+            elizaLogger.error(`Error in fetching auctions by denom: ${e}`);
+            throw e;
+        }
+    }
+
+    async getAuction(
+        auctionId: string,
+    ): Promise<any> {
+        try {
+            const address = await this.wallet.getAddress();
+            if (!address) {
+                throw new Error("Could not get address");
+            }
+
+            let tmClient;
+            const rpcEndpoint = process.env.OMNIFLIX_RPC_ENDPOINT;
+
+            if (!rpcEndpoint) {
+                elizaLogger.error("RPC endpoint not found");
+                return null;
+            }
+            tmClient = await Tendermint34Client.connect(rpcEndpoint);
+            
+            // Create query client
+            const queryClient = QueryClient.withExtensions(tmClient);
+            const rpcClient = createProtobufRpcClient(queryClient);
+            
+            // Create OmniFlix query client
+            const onftQueryClient = new QueryClientImpl(rpcClient);
+
+            // Make the Query Request to get only denom info
+            const response = await onftQueryClient.Auction({
+                id: BigInt(auctionId),
+            });
+            return response.auction;
+        } catch (e) {
+            elizaLogger.error(`Error in fetching auctions by id: ${e}`);
+            throw e;
+        }
+    }
+
+    async getMyAuctions(): Promise<any> {
+        try {
+            const address = await this.wallet.getAddress();
+            if (!address) {
+                throw new Error("Could not get address");
+            }
+
+            let tmClient;
+            const rpcEndpoint = process.env.OMNIFLIX_RPC_ENDPOINT;
+
+            if (!rpcEndpoint) {
+                elizaLogger.error("RPC endpoint not found");
+                return null;
+            }
+            tmClient = await Tendermint34Client.connect(rpcEndpoint);
+            
+            // Create query client
+            const queryClient = QueryClient.withExtensions(tmClient);
+            const rpcClient = createProtobufRpcClient(queryClient);
+            
+            // Create OmniFlix query client
+            const onftQueryClient = new QueryClientImpl(rpcClient);
+
+            // Make the Query Request to get only denom info
+            const response = await onftQueryClient.AuctionsByOwner({
+                owner: address,
+            });
+            return response.auctions;
+        } catch (e) {
+            elizaLogger.error(`Error in fetching auctions by owner: ${e}`);
+            throw e;
+        }
+    }
+
+    async getAuctionsByPriceDenom(
+        denom: string
+    ): Promise<any> {
+        try {
+            const address = await this.wallet.getAddress();
+            if (!address) {
+                throw new Error("Could not get address");
+            }
+
+            let tmClient;
+            const rpcEndpoint = process.env.OMNIFLIX_RPC_ENDPOINT;
+
+            if (!rpcEndpoint) {
+                elizaLogger.error("RPC endpoint not found");
+                return null;
+            }
+            tmClient = await Tendermint34Client.connect(rpcEndpoint);
+            
+            // Create query client
+            const queryClient = QueryClient.withExtensions(tmClient);
+            const rpcClient = createProtobufRpcClient(queryClient);
+            
+            // Create OmniFlix query client
+            const onftQueryClient = new QueryClientImpl(rpcClient);
+
+            // Make the Query Request to get only denom info
+            const response = await onftQueryClient.AuctionsByPriceDenom({
+                priceDenom: denom,
+            });
+            return response.auctions;
+        } catch (e) {
+            elizaLogger.error(`Error in fetching auctions by denom: ${e}`);
+            throw e;
+        }
+    }
+
+    async getAuctionByNftId(
+        nftId: string
+    ): Promise<any> {
+        try {
+            const address = await this.wallet.getAddress();
+            if (!address) {
+                throw new Error("Could not get address");
+            }
+
+            let tmClient;
+            const rpcEndpoint = process.env.OMNIFLIX_RPC_ENDPOINT;
+
+            if (!rpcEndpoint) {
+                elizaLogger.error("RPC endpoint not found");
+                return null;
+            }
+            tmClient = await Tendermint34Client.connect(rpcEndpoint);
+            
+            // Create query client
+            const queryClient = QueryClient.withExtensions(tmClient);
+            const rpcClient = createProtobufRpcClient(queryClient);
+            
+            // Create OmniFlix query client
+            const onftQueryClient = new QueryClientImpl(rpcClient);
+
+            // Make the Query Request to get only denom info
+            const response = await onftQueryClient.AuctionByNftId({
+                nftId,
+            });
+            return response.auction;
+        } catch (e) {
+            elizaLogger.error(`Error in fetching auctions by NFT Id: ${e}`);
+            throw e;
+        }
+    }
+
+    async getBids(
+        bidder: string
+    ): Promise<any> {
+        try {
+            const address = await this.wallet.getAddress();
+            if (!address) {
+                throw new Error("Could not get address");
+            }
+
+            let tmClient;
+            const rpcEndpoint = process.env.OMNIFLIX_RPC_ENDPOINT;
+
+            if (!rpcEndpoint) {
+                elizaLogger.error("RPC endpoint not found");
+                return null;
+            }
+            tmClient = await Tendermint34Client.connect(rpcEndpoint);
+            
+            // Create query client
+            const queryClient = QueryClient.withExtensions(tmClient);
+            const rpcClient = createProtobufRpcClient(queryClient);
+            
+            // Create OmniFlix query client
+            const onftQueryClient = new QueryClientImpl(rpcClient);
+
+            // Make the Query Request to get only denom info
+            const response = await onftQueryClient.Bids({
+                bidder,
+            });
+            return response.bids;
+        } catch (e) {
+            elizaLogger.error(`Error in fetching bids: ${e}`);
+            throw e;
+        }
+    }
+
+    async getSingleBid(
+        auctionId: string
+    ): Promise<any> {
+        try {
+            const address = await this.wallet.getAddress();
+            if (!address) {
+                throw new Error("Could not get address");
+            }
+
+            let tmClient;
+            const rpcEndpoint = process.env.OMNIFLIX_RPC_ENDPOINT;
+
+            if (!rpcEndpoint) {
+                elizaLogger.error("RPC endpoint not found");
+                return null;
+            }
+            tmClient = await Tendermint34Client.connect(rpcEndpoint);
+            
+            // Create query client
+            const queryClient = QueryClient.withExtensions(tmClient);
+            const rpcClient = createProtobufRpcClient(queryClient);
+            
+            // Create OmniFlix query client
+            const onftQueryClient = new QueryClientImpl(rpcClient);
+
+            // Make the Query Request to get only denom info
+            const response = await onftQueryClient.Bid({
+                id: BigInt(auctionId),
+            });
+            return response.bid;
+        } catch (e) {
+            elizaLogger.error(`Error in fetching bids: ${e}`);
+            throw e;
+        }
+    }
 }

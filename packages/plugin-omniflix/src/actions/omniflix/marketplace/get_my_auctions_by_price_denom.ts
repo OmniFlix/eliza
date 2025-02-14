@@ -13,22 +13,20 @@ import {
 } from "@elizaos/core";
 import { WalletProvider, walletProvider } from "../../../providers/wallet.ts";
 import { MarketPlaceProvider } from "../../../providers/omniflix/marketplace.ts";
-import getListingExamples from "../../../action_examples/omniflix/marketplace/get_listing.ts";
+import getMyAuctionsByPriceDenomExamples from "../../../action_examples/omniflix/marketplace/get_my_auctions_by_price_denom.ts";
 
-export interface getListingContent extends Content {
-    listId: string;
+export interface getMyAuctionsByPriceDenomContent extends Content {
+    denom: string;
 }
 interface validationResult {
     success: boolean;
     message: string;
 }
 
-function isgetListingContent(content: Content): validationResult {
+function isGetMyAuctionsByPriceDenomContent(content: Content): validationResult {
     let msg = "";
-    if (!content.listId) {
-        msg += "Please provide listId to fetch the list.";
-    } else if (content.listId && !(content.listId as string).startsWith("list")) {
-        msg += "Please provide a valid listId to fetch list.";
+    if (!content.denom) {
+        msg += "Please provide denom to get your auctions.";
     }
     if (msg !== "") {
         return {
@@ -38,29 +36,29 @@ function isgetListingContent(content: Content): validationResult {
     }
     return {
         success: true,
-        message: "fetch list request is valid.",
+        message: "get auctions of owner by denom request is valid.",
     };
 }
 
-const getListingTemplate = `Respond with a JSON markdown block containing only the extracted values.
+const getMyAuctionsByPriceDenomTemplate = `Respond with a JSON markdown block containing only the extracted values.
 
 Example response:
 \`\`\`json
 {
-   "listId": "list.."
+   "denom": "uflix"
 }
 \`\`\`
 
 {{recentMessages}}
 
-Given the recent messages, extract the following information about the requested list:
-- listId : mentioned in the current message or recent messages (if any)
+Given the recent messages, extract the following information about the requested auctions by price denom:
+- denom : mentioned in the current message
 
 Respond with a JSON markdown block containing only the extracted values.`;
 
-export class getListingAction {
-    async getListing(
-        params: getListingContent,
+export class getMyAuctionsByPriceDenomAction {
+    async getMyAuctionsByPriceDenom(
+        params: getMyAuctionsByPriceDenomContent,
         runtime: IAgentRuntime,
         message: Memory,
         state: State
@@ -73,13 +71,13 @@ export class getListingAction {
             );
 
             const marketPlaceProvider = new MarketPlaceProvider(wallet);
-            const response = await marketPlaceProvider.getListing(
-                params.listId
+            const response = await marketPlaceProvider.getMyAuctionsByPriceDenom(
+                params.denom
             );
-            if (!response || response.code !== 0) {
+            if (!response ) {
                 throw new Error(`${response.rawLog}`);
             }
-
+            console.log(response);
             return response;
         } catch (error) {
             throw new Error(`${error.message}`);
@@ -87,11 +85,11 @@ export class getListingAction {
     }
 }
 
-const buildGetListingDetails = async (
+const buildGetMyAuctionsByPriceDenomDetails = async (
     runtime: IAgentRuntime,
     message: Memory,
     state: State
-): Promise<getListingContent> => {
+): Promise<getMyAuctionsByPriceDenomContent> => {
     
     let currentState: State = state;
     if (!currentState) {
@@ -99,28 +97,28 @@ const buildGetListingDetails = async (
     }
     currentState = await runtime.updateRecentMessageState(currentState);
 
-    const getListingContext = composeContext({
+    const getMyAuctionsByPriceDenomContext = composeContext({
         state: currentState,
-        template: getListingTemplate,
+        template: getMyAuctionsByPriceDenomTemplate,
     });
 
     const content = await generateObjectDeprecated({
         runtime,
-        context: getListingContext,
+        context: getMyAuctionsByPriceDenomContext,
         modelClass: ModelClass.SMALL,
     });
 
-    const getListingContent = content as getListingContent;
+    const getMyAuctionsByPriceDenomContent = content as getMyAuctionsByPriceDenomContent;
 
-    return getListingContent;
+    return getMyAuctionsByPriceDenomContent;
 };
 
 export default {
-    name: "GET_LISTING",
+    name: "GET_MY_AUCTIONS_BY_PRICE_DENOM",
     similes: [
-        "fetch list",
+        "Get my auctions by price denom",
     ],
-    description: "get list.",
+    description: "Get my auctions by price denom",
     handler: async (
         runtime: IAgentRuntime,
         message: Memory,
@@ -128,13 +126,13 @@ export default {
         _options: { [key: string]: unknown },
         callback?: HandlerCallback
     ) => {
-        elizaLogger.log("Starting GET LISTING handler...");
-        const getListingDetails = await buildGetListingDetails(
+        elizaLogger.log("Starting Get auction by price denom handler...");
+        const getMyAuctionsByPriceDenomDetails = await buildGetMyAuctionsByPriceDenomDetails(
             runtime,
             message,
             state
         );
-        const validationResult = isgetListingContent(getListingDetails);
+        const validationResult = isGetMyAuctionsByPriceDenomContent(getMyAuctionsByPriceDenomDetails);
         if (!validationResult.success) {
             if (callback) {
                 callback({
@@ -145,18 +143,19 @@ export default {
             return false;
         }
         try {
-            const action = new getListingAction();
-            const response = await action.getListing(
-                getListingDetails,
+            const action = new getMyAuctionsByPriceDenomAction();
+            const response = await action.getMyAuctionsByPriceDenom(
+                getMyAuctionsByPriceDenomDetails,
                 runtime,
                 message,
                 state
             );
+            console.log("Get auction by price denom response: ", response);
             state = await runtime.updateRecentMessageState(state);
 
             if (callback) {
                 callback({
-                    text: `✅ Successfully retrieved listing details ${JSON.stringify(response, null, 2)}`,
+                    text: `✅ Successfully retreived auctions by price denom:  ${JSON.stringify(response, null, 2)}`,
                     content: {
                         success: true,
                     },
@@ -166,16 +165,16 @@ export default {
         } catch (error) {
             if (callback) {
                 callback({
-                    text: `Failed to retrieve listing details: ${error.message}`,
+                    text: `Failed to retreive auctions by price denom: ${error.message}`,
                     content: { error: error.message },
                 });
             }
             return false;
         }
     },
-    template: getListingTemplate,
+    template: getMyAuctionsByPriceDenomTemplate,
     validate: async (_runtime: IAgentRuntime) => {
         return true;
     },
-    examples: getListingExamples as ActionExample[][],
+    examples: getMyAuctionsByPriceDenomExamples as ActionExample[][],
 } as Action;

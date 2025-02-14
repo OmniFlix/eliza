@@ -13,22 +13,20 @@ import {
 } from "@elizaos/core";
 import { WalletProvider, walletProvider } from "../../../providers/wallet.ts";
 import { MarketPlaceProvider } from "../../../providers/omniflix/marketplace.ts";
-import getListingExamples from "../../../action_examples/omniflix/marketplace/get_listing.ts";
+import getListingByNFTExamples from "../../../action_examples/omniflix/marketplace/get_listing_by_nft.ts";
 
-export interface getListingContent extends Content {
-    listId: string;
+export interface getListingByNFTContent extends Content {
+    nftId: string;
 }
 interface validationResult {
     success: boolean;
     message: string;
 }
 
-function isgetListingContent(content: Content): validationResult {
+function isGetListingByNFTContent(content: Content): validationResult {
     let msg = "";
-    if (!content.listId) {
-        msg += "Please provide listId to fetch the list.";
-    } else if (content.listId && !(content.listId as string).startsWith("list")) {
-        msg += "Please provide a valid listId to fetch list.";
+    if (!content.nftId) {
+        msg += "Please provide nftId to fetch the list.";
     }
     if (msg !== "") {
         return {
@@ -38,29 +36,29 @@ function isgetListingContent(content: Content): validationResult {
     }
     return {
         success: true,
-        message: "fetch list request is valid.",
+        message: "fetch list of given NFT request is valid.",
     };
 }
 
-const getListingTemplate = `Respond with a JSON markdown block containing only the extracted values.
+const getListingByNFTTemplate = `Respond with a JSON markdown block containing only the extracted values.
 
 Example response:
 \`\`\`json
 {
-   "listId": "list.."
+   "nftId": "onft.."
 }
 \`\`\`
 
 {{recentMessages}}
 
-Given the recent messages, extract the following information about the requested list:
-- listId : mentioned in the current message or recent messages (if any)
+Given the recent messages, extract the following information about the requested NFT Id:
+- nftId : mentioned in the current message.
 
 Respond with a JSON markdown block containing only the extracted values.`;
 
-export class getListingAction {
-    async getListing(
-        params: getListingContent,
+export class getListingByNFTAction {
+    async getListingByNFT(
+        params: getListingByNFTContent,
         runtime: IAgentRuntime,
         message: Memory,
         state: State
@@ -73,8 +71,8 @@ export class getListingAction {
             );
 
             const marketPlaceProvider = new MarketPlaceProvider(wallet);
-            const response = await marketPlaceProvider.getListing(
-                params.listId
+            const response = await marketPlaceProvider.getListingByNFTId(
+                params.nftId
             );
             if (!response || response.code !== 0) {
                 throw new Error(`${response.rawLog}`);
@@ -87,11 +85,11 @@ export class getListingAction {
     }
 }
 
-const buildGetListingDetails = async (
+const buildGetListingByNFTDetails = async (
     runtime: IAgentRuntime,
     message: Memory,
     state: State
-): Promise<getListingContent> => {
+): Promise<getListingByNFTContent> => {
     
     let currentState: State = state;
     if (!currentState) {
@@ -99,24 +97,24 @@ const buildGetListingDetails = async (
     }
     currentState = await runtime.updateRecentMessageState(currentState);
 
-    const getListingContext = composeContext({
+    const getListingByNFTContext = composeContext({
         state: currentState,
-        template: getListingTemplate,
+        template: getListingByNFTTemplate,
     });
 
     const content = await generateObjectDeprecated({
         runtime,
-        context: getListingContext,
+        context: getListingByNFTContext,
         modelClass: ModelClass.SMALL,
     });
 
-    const getListingContent = content as getListingContent;
+    const getListingByNFTContent = content as getListingByNFTContent;
 
-    return getListingContent;
+    return getListingByNFTContent;
 };
 
 export default {
-    name: "GET_LISTING",
+    name: "GET_LISTING_BY_NFT",
     similes: [
         "fetch list",
     ],
@@ -128,13 +126,13 @@ export default {
         _options: { [key: string]: unknown },
         callback?: HandlerCallback
     ) => {
-        elizaLogger.log("Starting GET LISTING handler...");
-        const getListingDetails = await buildGetListingDetails(
+        elizaLogger.log("Starting GET LISTING BY NFT handler...");
+        const getListingByNFTDetails = await buildGetListingByNFTDetails(
             runtime,
             message,
             state
         );
-        const validationResult = isgetListingContent(getListingDetails);
+        const validationResult = isGetListingByNFTContent(getListingByNFTDetails);
         if (!validationResult.success) {
             if (callback) {
                 callback({
@@ -145,9 +143,9 @@ export default {
             return false;
         }
         try {
-            const action = new getListingAction();
-            const response = await action.getListing(
-                getListingDetails,
+            const action = new getListingByNFTAction();
+            const response = await action.getListingByNFT(
+                getListingByNFTDetails,
                 runtime,
                 message,
                 state
@@ -156,7 +154,7 @@ export default {
 
             if (callback) {
                 callback({
-                    text: `✅ Successfully retrieved listing details ${JSON.stringify(response, null, 2)}`,
+                    text: `✅ Successfully retrieved listing by NFT ${JSON.stringify(response, null, 2)}`,
                     content: {
                         success: true,
                     },
@@ -166,16 +164,16 @@ export default {
         } catch (error) {
             if (callback) {
                 callback({
-                    text: `Failed to retrieve listing details: ${error.message}`,
+                    text: `Failed to retrieve listing details by NFT: ${error.message}`,
                     content: { error: error.message },
                 });
             }
             return false;
         }
     },
-    template: getListingTemplate,
+    template: getListingByNFTTemplate,
     validate: async (_runtime: IAgentRuntime) => {
         return true;
     },
-    examples: getListingExamples as ActionExample[][],
+    examples: getListingByNFTExamples as ActionExample[][],
 } as Action;
