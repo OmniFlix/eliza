@@ -13,21 +13,21 @@ import {
 } from "@elizaos/core";
 import { WalletProvider, walletProvider } from "../../../providers/wallet.ts";
 import { MarketPlaceProvider } from "../../../providers/omniflix/marketplace.ts";
-import getListingsByPriceDenomExamples from "../../../action_examples/omniflix/marketplace/get_listings_by_price_denom.ts";
+import getLatestBidByIdExamples from "../../../action_examples/omniflix/marketplace/get_latest_bid_by_id.ts";
 
-export interface getListingsByPriceDenomContent extends Content {
-    denom: string;
+export interface getLatestBidByIdContent extends Content {
+    auctionId: string;
 }
 interface validationResult {
     success: boolean;
     message: string;
 }
 
-function isGetListingsByPriceDenomContent(content: Content): validationResult {
+function isGetLatestBidByIdContent(content: Content): validationResult {
     let msg = "";
-    if (!content.denom) {
-        msg += "Please provide denom to get the listings.";
-    }
+    if (!content.auctionId) {
+        msg += "Please provide auction to fetch the latest bid.";
+    } 
     if (msg !== "") {
         return {
             success: false,
@@ -36,29 +36,29 @@ function isGetListingsByPriceDenomContent(content: Content): validationResult {
     }
     return {
         success: true,
-        message: "get listings by denom request is valid.",
+        message: "fetch latest bid request is valid.",
     };
 }
 
-const getListingsByPriceDenomTemplate = `Respond with a JSON markdown block containing only the extracted values.
+const getLatestBidByIdTemplate = `Respond with a JSON markdown block containing only the extracted values.
 
 Example response:
 \`\`\`json
-{
-   "denom": "uflix"
+{ist.."
+   "auctionId": 2
 }
 \`\`\`
 
 {{recentMessages}}
 
-Given the recent messages, extract the following information about the requested listings by price denom:
-- denom : mentioned in the current message or recent messages (if any)
+Given the recent messages, extract the following information about the requested list:
+- auctionId : mentioned in the current message 
 
 Respond with a JSON markdown block containing only the extracted values.`;
 
-export class getListingsByPriceDenomAction {
-    async getListingsByPriceDenom(
-        params: getListingsByPriceDenomContent,
+export class getLatestBidByIdAction {
+    async getLatestBidById(
+        params: getLatestBidByIdContent,
         runtime: IAgentRuntime,
         message: Memory,
         state: State
@@ -71,13 +71,13 @@ export class getListingsByPriceDenomAction {
             );
 
             const marketPlaceProvider = new MarketPlaceProvider(wallet);
-            const response = await marketPlaceProvider.getListingByPriceDenom(
-                params.denom
+            const response = await marketPlaceProvider.getLatestBidById(
+                params.auctionId
             );
-            if (!response ) {
+            if (!response || response.code !== 0) {
                 throw new Error(`${response.rawLog}`);
             }
-            console.log(response);
+
             return response;
         } catch (error) {
             throw new Error(`${error.message}`);
@@ -85,11 +85,11 @@ export class getListingsByPriceDenomAction {
     }
 }
 
-const buildGetListingsByPriceDenomDetails = async (
+const buildGetLatestBidByIdDetails = async (
     runtime: IAgentRuntime,
     message: Memory,
     state: State
-): Promise<getListingsByPriceDenomContent> => {
+): Promise<getLatestBidByIdContent> => {
     
     let currentState: State = state;
     if (!currentState) {
@@ -97,28 +97,28 @@ const buildGetListingsByPriceDenomDetails = async (
     }
     currentState = await runtime.updateRecentMessageState(currentState);
 
-    const getListingsByPriceDenomContext = composeContext({
+    const getLatestBidByIdContext = composeContext({
         state: currentState,
-        template: getListingsByPriceDenomTemplate,
+        template: getLatestBidByIdTemplate,
     });
 
     const content = await generateObjectDeprecated({
         runtime,
-        context: getListingsByPriceDenomContext,
+        context: getLatestBidByIdContext,
         modelClass: ModelClass.SMALL,
     });
 
-    const getListingsByPriceDenomContent = content as getListingsByPriceDenomContent;
+    const getLatestBidByIdContent = content as getLatestBidByIdContent;
 
-    return getListingsByPriceDenomContent;
+    return getLatestBidByIdContent;
 };
 
 export default {
-    name: "GET_LISTINGS_BY_PRICE_DENOM",
+    name: "GET_LATEST_BID_BY_ID",
     similes: [
-        "Get listings by price denom",
+        "fetch latest bid",
     ],
-    description: "Get listings by price denom",
+    description: "get latest bid.",
     handler: async (
         runtime: IAgentRuntime,
         message: Memory,
@@ -126,13 +126,13 @@ export default {
         _options: { [key: string]: unknown },
         callback?: HandlerCallback
     ) => {
-        elizaLogger.log("Starting Get listing by price denom handler...");
-        const getListingsByPriceDenomDetails = await buildGetListingsByPriceDenomDetails(
+        elizaLogger.log("Starting GET LATEST BID handler...");
+        const getListingDetails = await buildGetLatestBidByIdDetails(
             runtime,
             message,
             state
         );
-        const validationResult = isGetListingsByPriceDenomContent(getListingsByPriceDenomDetails);
+        const validationResult = isGetLatestBidByIdContent(getListingDetails);
         if (!validationResult.success) {
             if (callback) {
                 callback({
@@ -143,19 +143,18 @@ export default {
             return false;
         }
         try {
-            const action = new getListingsByPriceDenomAction();
-            const response = await action.getListingsByPriceDenom(
-                getListingsByPriceDenomDetails,
+            const action = new getLatestBidByIdAction();
+            const response = await action.getLatestBidById(
+                getListingDetails,
                 runtime,
                 message,
                 state
             );
-            console.log("Get listing by price denom response: ", response);
             state = await runtime.updateRecentMessageState(state);
 
             if (callback) {
                 callback({
-                    text: `✅ Successfully retreived listings by price denom:  ${JSON.stringify(response, null, 2)}`,
+                    text: `✅ Successfully retrieved latest bid details ${JSON.stringify(response, null, 2)}`,
                     content: {
                         success: true,
                     },
@@ -165,16 +164,16 @@ export default {
         } catch (error) {
             if (callback) {
                 callback({
-                    text: `Failed to retreive listings by price denom: ${error.message}`,
+                    text: `Failed to retrieve latest bid details: ${error.message}`,
                     content: { error: error.message },
                 });
             }
             return false;
         }
     },
-    template: getListingsByPriceDenomTemplate,
+    template: getLatestBidByIdTemplate,
     validate: async (_runtime: IAgentRuntime) => {
         return true;
     },
-    examples: getListingsByPriceDenomExamples as ActionExample[][],
+    examples: getLatestBidByIdExamples as ActionExample[][],
 } as Action;

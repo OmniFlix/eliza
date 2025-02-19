@@ -13,20 +13,20 @@ import {
 } from "@elizaos/core";
 import { WalletProvider, walletProvider } from "../../../providers/wallet.ts";
 import { MarketPlaceProvider } from "../../../providers/omniflix/marketplace.ts";
-import getListingsByPriceDenomExamples from "../../../action_examples/omniflix/marketplace/get_listings_by_price_denom.ts";
+import getAuctionByNFTExamples from "../../../action_examples/omniflix/marketplace/get_auction_by_nft.ts";
 
-export interface getListingsByPriceDenomContent extends Content {
-    denom: string;
+export interface getAuctionByNFTContent extends Content {
+    nftId: string;
 }
 interface validationResult {
     success: boolean;
     message: string;
 }
 
-function isGetListingsByPriceDenomContent(content: Content): validationResult {
+function isGetAuctionByNFTContent(content: Content): validationResult {
     let msg = "";
-    if (!content.denom) {
-        msg += "Please provide denom to get the listings.";
+    if (!content.nftId) {
+        msg += "Please provide nftId to fetch the auction.";
     }
     if (msg !== "") {
         return {
@@ -36,29 +36,29 @@ function isGetListingsByPriceDenomContent(content: Content): validationResult {
     }
     return {
         success: true,
-        message: "get listings by denom request is valid.",
+        message: "fetch auction of given NFT request is valid.",
     };
 }
 
-const getListingsByPriceDenomTemplate = `Respond with a JSON markdown block containing only the extracted values.
+const getAuctionByNFTTemplate = `Respond with a JSON markdown block containing only the extracted values.
 
 Example response:
 \`\`\`json
 {
-   "denom": "uflix"
+   "nftId": "onft.."
 }
 \`\`\`
 
 {{recentMessages}}
 
-Given the recent messages, extract the following information about the requested listings by price denom:
-- denom : mentioned in the current message or recent messages (if any)
+Given the recent messages, extract the following information about the requested NFT Id:
+- nftId : mentioned in the current message.
 
 Respond with a JSON markdown block containing only the extracted values.`;
 
-export class getListingsByPriceDenomAction {
-    async getListingsByPriceDenom(
-        params: getListingsByPriceDenomContent,
+export class getAuctionByNFTAction {
+    async getAuctionByNFT(
+        params: getAuctionByNFTContent,
         runtime: IAgentRuntime,
         message: Memory,
         state: State
@@ -71,13 +71,13 @@ export class getListingsByPriceDenomAction {
             );
 
             const marketPlaceProvider = new MarketPlaceProvider(wallet);
-            const response = await marketPlaceProvider.getListingByPriceDenom(
-                params.denom
+            const response = await marketPlaceProvider.getAuctionByNftId(
+                params.nftId
             );
-            if (!response ) {
+            if (!response || response.code !== 0) {
                 throw new Error(`${response.rawLog}`);
             }
-            console.log(response);
+
             return response;
         } catch (error) {
             throw new Error(`${error.message}`);
@@ -85,11 +85,11 @@ export class getListingsByPriceDenomAction {
     }
 }
 
-const buildGetListingsByPriceDenomDetails = async (
+const buildGetAuctionByNFTDetails = async (
     runtime: IAgentRuntime,
     message: Memory,
     state: State
-): Promise<getListingsByPriceDenomContent> => {
+): Promise<getAuctionByNFTContent> => {
     
     let currentState: State = state;
     if (!currentState) {
@@ -97,28 +97,28 @@ const buildGetListingsByPriceDenomDetails = async (
     }
     currentState = await runtime.updateRecentMessageState(currentState);
 
-    const getListingsByPriceDenomContext = composeContext({
+    const getAuctionByNFTContext = composeContext({
         state: currentState,
-        template: getListingsByPriceDenomTemplate,
+        template: getAuctionByNFTTemplate,
     });
 
     const content = await generateObjectDeprecated({
         runtime,
-        context: getListingsByPriceDenomContext,
+        context: getAuctionByNFTContext,
         modelClass: ModelClass.SMALL,
     });
 
-    const getListingsByPriceDenomContent = content as getListingsByPriceDenomContent;
+    const getAuctionByNFTContent = content as getAuctionByNFTContent;
 
-    return getListingsByPriceDenomContent;
+    return getAuctionByNFTContent;
 };
 
 export default {
-    name: "GET_LISTINGS_BY_PRICE_DENOM",
+    name: "GET_AUCTION_BY_NFT",
     similes: [
-        "Get listings by price denom",
+        "fetch auction",
     ],
-    description: "Get listings by price denom",
+    description: "get auction.",
     handler: async (
         runtime: IAgentRuntime,
         message: Memory,
@@ -126,13 +126,13 @@ export default {
         _options: { [key: string]: unknown },
         callback?: HandlerCallback
     ) => {
-        elizaLogger.log("Starting Get listing by price denom handler...");
-        const getListingsByPriceDenomDetails = await buildGetListingsByPriceDenomDetails(
+        elizaLogger.log("Starting GET AUCTION BY NFT handler...");
+        const getListingByNFTDetails = await buildGetAuctionByNFTDetails(
             runtime,
             message,
             state
         );
-        const validationResult = isGetListingsByPriceDenomContent(getListingsByPriceDenomDetails);
+        const validationResult = isGetAuctionByNFTContent(getListingByNFTDetails);
         if (!validationResult.success) {
             if (callback) {
                 callback({
@@ -143,19 +143,18 @@ export default {
             return false;
         }
         try {
-            const action = new getListingsByPriceDenomAction();
-            const response = await action.getListingsByPriceDenom(
-                getListingsByPriceDenomDetails,
+            const action = new getAuctionByNFTAction();
+            const response = await action.getAuctionByNFT(
+                getListingByNFTDetails,
                 runtime,
                 message,
                 state
             );
-            console.log("Get listing by price denom response: ", response);
             state = await runtime.updateRecentMessageState(state);
 
             if (callback) {
                 callback({
-                    text: `✅ Successfully retreived listings by price denom:  ${JSON.stringify(response, null, 2)}`,
+                    text: `✅ Successfully retrieved auction by NFT ${JSON.stringify(response, null, 2)}`,
                     content: {
                         success: true,
                     },
@@ -165,16 +164,16 @@ export default {
         } catch (error) {
             if (callback) {
                 callback({
-                    text: `Failed to retreive listings by price denom: ${error.message}`,
+                    text: `Failed to retrieve auction details by NFT: ${error.message}`,
                     content: { error: error.message },
                 });
             }
             return false;
         }
     },
-    template: getListingsByPriceDenomTemplate,
+    template: getAuctionByNFTTemplate,
     validate: async (_runtime: IAgentRuntime) => {
         return true;
     },
-    examples: getListingsByPriceDenomExamples as ActionExample[][],
+    examples: getAuctionByNFTExamples as ActionExample[][],
 } as Action;

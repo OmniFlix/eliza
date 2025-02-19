@@ -23,7 +23,7 @@ interface validationResult {
     message: string;
 }
 
-function isgetListingContent(content: Content): validationResult {
+function isGetListingContent(content: Content): validationResult {
     let msg = "";
     if (!content.listId) {
         msg += "Please provide listId to fetch the list.";
@@ -134,7 +134,7 @@ export default {
             message,
             state
         );
-        const validationResult = isgetListingContent(getListingDetails);
+        const validationResult = isGetListingContent(getListingDetails);
         if (!validationResult.success) {
             if (callback) {
                 callback({

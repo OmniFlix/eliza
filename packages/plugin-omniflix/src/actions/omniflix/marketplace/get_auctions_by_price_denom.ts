@@ -13,9 +13,9 @@ import {
 } from "@elizaos/core";
 import { WalletProvider, walletProvider } from "../../../providers/wallet.ts";
 import { MarketPlaceProvider } from "../../../providers/omniflix/marketplace.ts";
-import getListingsByPriceDenomExamples from "../../../action_examples/omniflix/marketplace/get_listings_by_price_denom.ts";
+import getAuctionsByPriceDenomExamples from "../../../action_examples/omniflix/marketplace/get_auctions_by_price_denom.ts";
 
-export interface getListingsByPriceDenomContent extends Content {
+export interface getAuctionsByPriceDenomContent extends Content {
     denom: string;
 }
 interface validationResult {
@@ -23,10 +23,10 @@ interface validationResult {
     message: string;
 }
 
-function isGetListingsByPriceDenomContent(content: Content): validationResult {
+function isGetAuctionsByPriceDenomContent(content: Content): validationResult {
     let msg = "";
     if (!content.denom) {
-        msg += "Please provide denom to get the listings.";
+        msg += "Please provide denom to get the auctions.";
     }
     if (msg !== "") {
         return {
@@ -36,11 +36,11 @@ function isGetListingsByPriceDenomContent(content: Content): validationResult {
     }
     return {
         success: true,
-        message: "get listings by denom request is valid.",
+        message: "get auctions by denom request is valid.",
     };
 }
 
-const getListingsByPriceDenomTemplate = `Respond with a JSON markdown block containing only the extracted values.
+const getAuctionsByPriceDenomTemplate = `Respond with a JSON markdown block containing only the extracted values.
 
 Example response:
 \`\`\`json
@@ -52,13 +52,13 @@ Example response:
 {{recentMessages}}
 
 Given the recent messages, extract the following information about the requested listings by price denom:
-- denom : mentioned in the current message or recent messages (if any)
+- denom : mentioned in the current message
 
 Respond with a JSON markdown block containing only the extracted values.`;
 
-export class getListingsByPriceDenomAction {
-    async getListingsByPriceDenom(
-        params: getListingsByPriceDenomContent,
+export class getAuctionsByPriceDenomAction {
+    async getAuctionsByPriceDenom(
+        params: getAuctionsByPriceDenomContent,
         runtime: IAgentRuntime,
         message: Memory,
         state: State
@@ -71,7 +71,7 @@ export class getListingsByPriceDenomAction {
             );
 
             const marketPlaceProvider = new MarketPlaceProvider(wallet);
-            const response = await marketPlaceProvider.getListingByPriceDenom(
+            const response = await marketPlaceProvider.getAuctionsByPriceDenom(
                 params.denom
             );
             if (!response ) {
@@ -85,11 +85,11 @@ export class getListingsByPriceDenomAction {
     }
 }
 
-const buildGetListingsByPriceDenomDetails = async (
+const buildGetAuctionsByPriceDenomDetails = async (
     runtime: IAgentRuntime,
     message: Memory,
     state: State
-): Promise<getListingsByPriceDenomContent> => {
+): Promise<getAuctionsByPriceDenomContent> => {
     
     let currentState: State = state;
     if (!currentState) {
@@ -97,28 +97,28 @@ const buildGetListingsByPriceDenomDetails = async (
     }
     currentState = await runtime.updateRecentMessageState(currentState);
 
-    const getListingsByPriceDenomContext = composeContext({
+    const getAuctionsByPriceDenomContext = composeContext({
         state: currentState,
-        template: getListingsByPriceDenomTemplate,
+        template: getAuctionsByPriceDenomTemplate,
     });
 
     const content = await generateObjectDeprecated({
         runtime,
-        context: getListingsByPriceDenomContext,
+        context: getAuctionsByPriceDenomContext,
         modelClass: ModelClass.SMALL,
     });
 
-    const getListingsByPriceDenomContent = content as getListingsByPriceDenomContent;
+    const getAuctionsByPriceDenomContent = content as getAuctionsByPriceDenomContent;
 
-    return getListingsByPriceDenomContent;
+    return getAuctionsByPriceDenomContent;
 };
 
 export default {
-    name: "GET_LISTINGS_BY_PRICE_DENOM",
+    name: "GET_AUCTIONS_BY_PRICE_DENOM",
     similes: [
-        "Get listings by price denom",
+        "Get auctions by price denom",
     ],
-    description: "Get listings by price denom",
+    description: "Get auctions by price denom",
     handler: async (
         runtime: IAgentRuntime,
         message: Memory,
@@ -126,13 +126,13 @@ export default {
         _options: { [key: string]: unknown },
         callback?: HandlerCallback
     ) => {
-        elizaLogger.log("Starting Get listing by price denom handler...");
-        const getListingsByPriceDenomDetails = await buildGetListingsByPriceDenomDetails(
+        elizaLogger.log("Starting Get auctions by price denom handler...");
+        const getAuctionsByPriceDenomDetails = await buildGetAuctionsByPriceDenomDetails(
             runtime,
             message,
             state
         );
-        const validationResult = isGetListingsByPriceDenomContent(getListingsByPriceDenomDetails);
+        const validationResult = isGetAuctionsByPriceDenomContent(getAuctionsByPriceDenomDetails);
         if (!validationResult.success) {
             if (callback) {
                 callback({
@@ -143,19 +143,19 @@ export default {
             return false;
         }
         try {
-            const action = new getListingsByPriceDenomAction();
-            const response = await action.getListingsByPriceDenom(
-                getListingsByPriceDenomDetails,
+            const action = new getAuctionsByPriceDenomAction();
+            const response = await action.getAuctionsByPriceDenom(
+                getAuctionsByPriceDenomDetails,
                 runtime,
                 message,
                 state
             );
-            console.log("Get listing by price denom response: ", response);
+            console.log("Get auctions by price denom response: ", response);
             state = await runtime.updateRecentMessageState(state);
 
             if (callback) {
                 callback({
-                    text: `✅ Successfully retreived listings by price denom:  ${JSON.stringify(response, null, 2)}`,
+                    text: `✅ Successfully retreived auctions by price denom:  ${JSON.stringify(response, null, 2)}`,
                     content: {
                         success: true,
                     },
@@ -165,16 +165,16 @@ export default {
         } catch (error) {
             if (callback) {
                 callback({
-                    text: `Failed to retreive listings by price denom: ${error.message}`,
+                    text: `Failed to retreive auctions by price denom: ${error.message}`,
                     content: { error: error.message },
                 });
             }
             return false;
         }
     },
-    template: getListingsByPriceDenomTemplate,
+    template: getAuctionsByPriceDenomTemplate,
     validate: async (_runtime: IAgentRuntime) => {
         return true;
     },
-    examples: getListingsByPriceDenomExamples as ActionExample[][],
+    examples: getAuctionsByPriceDenomExamples as ActionExample[][],
 } as Action;

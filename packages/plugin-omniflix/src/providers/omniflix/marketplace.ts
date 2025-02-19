@@ -648,8 +648,7 @@ export class MarketPlaceProvider {
         }
     }
 
-    async getBids(
-        bidder: string
+    async getMyBids(
     ): Promise<any> {
         try {
             const address = await this.wallet.getAddress();
@@ -675,7 +674,7 @@ export class MarketPlaceProvider {
 
             // Make the Query Request to get only denom info
             const response = await onftQueryClient.Bids({
-                bidder,
+                bidder: address,
             });
             return response.bids;
         } catch (e) {
@@ -684,7 +683,7 @@ export class MarketPlaceProvider {
         }
     }
 
-    async getSingleBid(
+    async getLatestBidById(
         auctionId: string
     ): Promise<any> {
         try {

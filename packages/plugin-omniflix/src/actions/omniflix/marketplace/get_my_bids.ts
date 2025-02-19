@@ -9,11 +9,11 @@ import {
 } from "@elizaos/core";
 import { WalletProvider, walletProvider } from "../../../providers/wallet.ts";
 import { MarketPlaceProvider } from "../../../providers/omniflix/marketplace.ts";
-import getMyAuctionsExamples from "../../../action_examples/omniflix/marketplace/get_my_auctions.ts";
+import getMyBidsExamples from "../../../action_examples/omniflix/marketplace/get_my_bids.ts";
 
 
-export class getMyAuctionsAction {
-    async getAuctions(
+export class getMyBidsAction {
+    async getMyBids(
         runtime: IAgentRuntime,
         message: Memory,
         state: State
@@ -26,7 +26,7 @@ export class getMyAuctionsAction {
             );
 
             const marketPlaceProvider = new MarketPlaceProvider(wallet);
-            const response = await marketPlaceProvider.getMyAuctions();
+            const response = await marketPlaceProvider.getMyBids();
             if (!response || response.code !== 0) {
                 throw new Error(`${response.rawLog}`);
             }
@@ -39,11 +39,11 @@ export class getMyAuctionsAction {
 }
 
 export default {
-    name: "GET_MY_AUCTIONS",
+    name: "GET_MY_BIDS",
     similes: [
-        "fetch My auctions",
+        "fetch My bids",
     ],
-    description: "get My auctions.",
+    description: "get My bids.",
     handler: async (
         runtime: IAgentRuntime,
         message: Memory,
@@ -53,8 +53,8 @@ export default {
     ) => {
         elizaLogger.log("Starting GET MY AUCTIONS handler...");
         try {
-            const action = new getMyAuctionsAction();
-            const response = await action.getAuctions(
+            const action = new getMyBidsAction();
+            const response = await action.getMyBids(
                 runtime,
                 message,
                 state
@@ -63,7 +63,7 @@ export default {
 
             if (callback) {
                 callback({
-                    text: `✅ Successfully retrieved auctions ${JSON.stringify(response, null, 2)}`,
+                    text: `✅ Successfully retrieved bids ${JSON.stringify(response, null, 2)}`,
                     content: {
                         success: true,
                     },
@@ -73,7 +73,7 @@ export default {
         } catch (error) {
             if (callback) {
                 callback({
-                    text: `Failed to retrieve auctions: ${error.message}`,
+                    text: `Failed to retrieve bids: ${error.message}`,
                     content: { error: error.message },
                 });
             }
@@ -83,5 +83,5 @@ export default {
     validate: async (_runtime: IAgentRuntime) => {
         return true;
     },
-    examples: getMyAuctionsExamples as ActionExample[][],
+    examples: getMyBidsExamples as ActionExample[][],
 } as Action;
