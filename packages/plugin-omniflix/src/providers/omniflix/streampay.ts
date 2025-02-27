@@ -37,7 +37,6 @@ export class StreamPayProvider {
         streamType: number = 0,
         periods?: Period[] = [],
         cancellable: boolean = false,
-        paymentFee?: Coin
     ): Promise<StreamSendResponse> {
         try {
             const address = await this.wallet.getAddress();
@@ -48,6 +47,7 @@ export class StreamPayProvider {
             client.registry.register("/OmniFlix.streampay.v1.MsgStreamSend", MsgStreamSend);
 
             const startTime = Math.floor(Date.now() / 1000);
+            const paymentDenom = amount.denom;
             const stream = {
                 sender: address,
                 recipient: recipientAddress,
@@ -62,9 +62,9 @@ export class StreamPayProvider {
                 streamType: streamType || 0,
                 periods: periods || [],
                 cancellable: cancellable || false,
-                paymentFee: paymentFee || { 
-                    denom: "uflix", 
-                    amount: "0" 
+                paymentFee: { 
+                    denom: paymentDenom,
+                    amount: '100000'
                 }
             };
 
@@ -76,8 +76,8 @@ export class StreamPayProvider {
 
             const fee = {
                 amount: [{
-                    denom: 'uflix',
-                    amount: '50000'
+                    denom: paymentDenom,
+                    amount: '100000'
                 }],
                 gas: '5000000'
             };
@@ -88,6 +88,7 @@ export class StreamPayProvider {
                 fee,
                 "sending stream using Eliza"
             );
+            console.log('tx', tx);
 
             return {
                 streamId: tx.transactionHash,

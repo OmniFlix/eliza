@@ -32,7 +32,35 @@ export interface StreamSendContent extends Content {
     streamType?: string;
     periods?: Period[];
     cancellable?: string;
-    paymentFee?: string;
+}
+
+interface validationResult {
+    success: boolean;
+    message: string;
+}
+
+function isValidateStreamSendContent(content: StreamSendContent): validationResult {
+    console.log('Validating stream send content:', content);
+    if (!content.recipientAddress) {
+        return { success: false, message: "Recipient address is required" };
+    }
+    if (!content.recipientAddress.startsWith('omniflix')) {
+        return { success: false, message: "Invalid recipient address format. Must start with 'omniflix'" };
+    }
+    if (!content.denom) {
+        return { success: false, message: "Valid denomination is required" };
+    }
+    if (!content.amount) {
+        return { success: false, message: "Valid amount is required" };
+    }
+
+    // try {
+    //     BigInt(content.amount);
+    // } catch {
+    //     return { success: false, message: "Amount must be a valid number" };
+    // }
+    
+    return { success: true, message: "Stream send content is valid" };
 }
 
 const streamSendTemplate = `Respond with a JSON markdown block containing only the extracted values. Use null for any values that cannot be determined.
@@ -46,51 +74,21 @@ Example response:
     "duration": 10,
     "streamType": 0,
     "periods": [],
-    "cancellable": true,
-    "paymentFee": 0
+    "cancellable": true
 }
 \`\`\`
 {{recentMessages}}
 
 Given the recent messages, extract the following information about the requested stream send:
 - recipient address (must be a valid omniflix address)
-- denom: (optional) Please provide the denom.
-- amount: (required) Please provide the amount.
+- amount : mentioned in the current message or recent messages (if any)
+- denom : mentioned in the current message or recent messages (if any)
 - duration: (required) Please provide the duration.
 - stream type (optional, defaults to 0)
 - whether the stream is cancellable (optional, defaults to true)
-- payment fee (optional, in uflix)
 - periods (optional)
 
 Respond with a JSON markdown block containing only the extracted values.`;
-
-function validateStreamSendContent(content: StreamSendContent): { isValid: boolean; error?: string } {
-    console.log('Validating stream send content:', content);
-    if (!content.recipientAddress) {
-        return { isValid: false, error: "Recipient address is required" };
-    }
-    if (!content.recipientAddress.startsWith('omniflix')) {
-        return { isValid: false, error: "Invalid recipient address format. Must start with 'omniflix'" };
-    }
-    if (!content.denom) {
-        return { isValid: false, error: "Valid denomination is required" };
-    }
-    if (!content.amount) {
-        return { isValid: false, error: "Valid amount is required" };
-    }
-    if (!content.duration) {
-        return { isValid: false, error: "Valid duration in seconds is required" };
-    }
-    
-    // Validate amount format
-    try {
-        BigInt(content.amount);
-    } catch {
-        return { isValid: false, error: "Amount must be a valid number" };
-    }
-    
-    return { isValid: true };
-}
 
 const buildStreamSendDetails = async (
     runtime: IAgentRuntime,
@@ -112,21 +110,18 @@ const buildStreamSendDetails = async (
         modelClass: ModelClass.SMALL,
     });
 
-    const validation = validateStreamSendContent(content as StreamSendContent);
-    if (!validation.isValid) {
-        throw new Error(validation.error);
-    }
+    const streamSendContent = content as StreamSendContent;
 
-    return content as StreamSendContent;
+    return streamSendContent;
 };
 
 export class StreamSendAction {
-    static async sendStream(
+    async sendStream(
+        params: StreamSendContent,
         runtime: IAgentRuntime,
         message: Memory,
-        state: State,
-        callback?: HandlerCallback
-    ): Promise<boolean> {
+        state: State
+    ): Promise<string> {
         try {
             const wallet: WalletProvider = await walletProvider.get(
                 runtime,
@@ -134,13 +129,18 @@ export class StreamSendAction {
                 state,
             );
             const streamPayProvider = new StreamPayProvider(wallet);
-            
-            const params = await buildStreamSendDetails(runtime, message, state);
+            //const content = await buildStreamSendDetails(runtime, message, state);
+
+            // console.log('params', params);
+            // if (!params || !params.denom || !params.amount) {
+            //     throw new Error("Invalid parameters: denom and amount are required.");
+            // }
+            console.log('params', params);
             if (params.denom === "FLIX" || params.denom === "flix") {
                 params.denom = "uflix";
-                if (typeof params.amount === "number") {
+                if (params.amount && typeof params.amount === "number") {
                     params.amount = params.amount * 1000000;
-                } else if (typeof params.amount === "string") {
+                } else if (params.amount && typeof params.amount === "string") {
                     params.amount = Number.parseInt(params.amount) * 1000000;
                 }
             }
@@ -156,35 +156,16 @@ export class StreamSendAction {
                 Math.floor(Number(params.duration)),
                 Number(params.streamType) || 0,
                 [],
-                params.cancellable === 'true',
-                params.paymentFee && params.paymentFee !== 'null' ? { denom: params.denom, amount: params.paymentFee.toString() } : undefined
+                params.cancellable === 'true'
             );
 
             if (response.code !== 0) {
                 throw new Error(response.rawLog || "Stream send failed");
             }
 
-            if (callback) {
-                callback({
-                    text: `Successfully created stream with ID: ${response.streamId}\nTransaction Hash: ${response.transactionHash}`,
-                    content: { 
-                        success: true, 
-                        streamId: response.streamId,
-                        transactionHash: response.transactionHash 
-                    }
-                });
-            }
-
-            return true;
+            return response.transactionHash;
         } catch (error) {
-            elizaLogger.error(`Stream send failed: ${error.message}`);
-            if (callback) {
-                callback({
-                    text: `Failed to send stream: ${error.message}`,
-                    content: { success: false, error: error.message }
-                });
-            }
-            return false;
+            throw new Error(`Stream send failed: ${error.message}`);
         }
     }
 }
@@ -210,9 +191,58 @@ export default {
         callback?: HandlerCallback
     ) => {
         elizaLogger.log("Starting STREAM_SEND handler...");
-        
-        const params = await buildStreamSendDetails(runtime, message, state);
-        return StreamSendAction.sendStream(runtime, message, state, callback);
+
+        const streamSendContent = await buildStreamSendDetails(
+            runtime,
+            message,
+            state
+        );
+
+        const validationResult = isValidateStreamSendContent(streamSendContent);
+        if (!validationResult.success) {
+            if (callback) {
+                callback({
+                    text: validationResult.message,
+                    content: { error: validationResult.message },
+                });
+            }
+            return false;
+        }
+
+        try {
+            const action = new StreamSendAction();
+            console.log('action', action)
+            const txHash = await action.sendStream(
+                streamSendContent,
+                runtime,
+                message,
+                state
+            );
+            console.log('txHash', txHash)
+
+            state = await runtime.updateRecentMessageState(state);
+
+            if (callback) {
+                callback({
+                    text: `✅ Successfully streamed ${streamSendContent.amount} ${streamSendContent.denom} to ${streamSendContent.recipientAddress}\nTxHash: ${txHash}`,
+                    content: {
+                        success: true,
+                        hash: txHash,
+                        amount: streamSendContent.amount,
+                        recipient_address: streamSendContent.recipientAddress,
+                    },
+                });
+            }
+            return true;
+        } catch (error) {
+            if (callback) {
+                callback({
+                    text: `❌ Error occurred during STREAM_SEND please try again later with valid details.`,
+                    content: { error: error.message },
+                });
+            }
+            return false;
+        }
     },
     template: streamSendTemplate,
     validate: async (_runtime: IAgentRuntime) => true,
