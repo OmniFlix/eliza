@@ -143,7 +143,7 @@ export class ForceTransferAction {
 
             const tokenFactory = new TokenFactoryProvider(wallet);
 
-            const response = await tokenFactory.forceTransfer(params.sender, params.transferToAddress, params.amount, params.denom);
+            const response = await tokenFactory.forceTransfer(address, params.transferToAddress, params.amount, params.denom);
 
             if (response.code !== 0) {
                 throw new Error(`Transaction failed with code ${response.code}: ${response.rawLog}`);
