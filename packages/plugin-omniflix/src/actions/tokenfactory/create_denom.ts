@@ -133,7 +133,7 @@ const buildCreateDenomDetails = async (
     });
 
     if (content.denom) {
-        content.denom = content.denom.toUpperCase();
+        content.denom = content.denom;
     }
 
     const denomContent = content as CreateDenomContent;

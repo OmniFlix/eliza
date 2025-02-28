@@ -5,9 +5,6 @@ import {
     MsgMint,
     MsgChangeAdmin,
     MsgBurn,
-    MsgSetDenomMetadata,
-    MsgForceTransfer,
-    MsgUpdateParams,
 } from '@omniflixnetwork/omniflixjs/osmosis/tokenfactory/v1beta1/tx';
 
 export class TokenFactoryProvider {
@@ -114,78 +111,6 @@ export class TokenFactoryProvider {
             })
         };
 
-        return await client.signAndBroadcast(
-            address,
-            [msg],
-            {
-                amount: [{ denom: "uflix", amount: "5000" }],
-                gas: "2500000"
-            }
-        );
-    }
-
-    async setDenomMetadata(denom: string, metadata: any): Promise<DeliverTxResponse> {
-        const address = await this.wallet.getAddress();
-        const client = await this.wallet.getClient();
-
-        client.registry.register("/osmosis.tokenfactory.v1beta1.MsgSetDenomMetadata", MsgSetDenomMetadata);
-    
-        const msg = {
-            typeUrl: "/osmosis.tokenfactory.v1beta1.MsgSetDenomMetadata",
-            value: MsgSetDenomMetadata.fromPartial({
-                sender: address,
-                metadata: metadata
-            })
-        };
-    
-        return await client.signAndBroadcast(
-            address,
-            [msg],
-            {
-                amount: [{ denom: "uflix", amount: "5000" }],
-                gas: "2500000"
-            }
-        );
-    }
-
-    async forceTransfer(sender: string, recipient: string, amount: string, denom: string): Promise<DeliverTxResponse> {
-        const address = await this.wallet.getAddress();
-        const client = await this.wallet.getClient();
-        client.registry.register("/osmosis.tokenfactory.v1beta1.MsgForceTransfer", MsgForceTransfer);
-
-        const msg = {
-            typeUrl: "/osmosis.tokenfactory.v1beta1.MsgForceTransfer",
-            value: MsgForceTransfer.fromPartial({
-                sender: sender,
-                transferFromAddress: sender,
-                transferToAddress: recipient,
-                amount: {
-                    denom: denom,
-                    amount: amount.toString(),
-                }
-            })
-        };
-    
-        return await client.signAndBroadcast(
-            address,
-            [msg],
-            {
-                amount: [{ denom: "uflix", amount: "5000" }],
-                gas: "2500000"
-            }
-        );
-    }
-
-    async updateParams(authority: string, params: any): Promise<DeliverTxResponse> {
-        const address = await this.wallet.getAddress();
-        const client = await this.wallet.getClient();
-        client.registry.register("/osmosis.tokenfactory.v1beta1.MsgUpdateParams", MsgUpdateParams);
-
-        const msg = {
-            typeUrl: "/osmosis.tokenfactory.v1beta1.MsgUpdateParams",
-            value: MsgUpdateParams.fromPartial(params)
-        };
-    
         return await client.signAndBroadcast(
             address,
             [msg],
