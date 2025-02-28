@@ -84,7 +84,7 @@ Given the recent messages, extract the following information about the requested
 - amount : mentioned in the current message or recent messages (if any)
 - denom : mentioned in the current message or recent messages (if any)
 - duration: (required) Please provide the duration.
-- stream type (optional, defaults to 0)
+- stream type (optional, defaults to 1)
 - whether the stream is cancellable (optional, defaults to true)
 - periods (optional)
 

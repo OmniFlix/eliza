@@ -2,7 +2,7 @@ export default [
     [
         {
             user: "{{user1}}",
-            content: { text: "Send a stream of 100 FLIX to omniflix1xyz... for 1 hour" }
+            content: { text: "Send a stream of 100 FLIX to omniflix1xyz... for 1 hour with stream type 0" }
         },
         {
             user: "{{FlixAgent}}",
@@ -13,7 +13,7 @@ export default [
         },
         {
             user: "{{user1}}",
-            content: { text: "amount: 100 denom: FLIX duration: 3600" }
+            content: { text: "amount: 100 denom: FLIX duration: 3600 streamType: 0" }
         },
         {
             user: "{{FlixAgent}}",
@@ -26,7 +26,7 @@ export default [
     [
         {
             user: "{{user1}}",
-            content: { text: "Create a non-cancellable stream of 50 FLIX to omniflix1abc... that lasts for 24 hours" }
+            content: { text: "Create a non-cancellable stream of 50 FLIX to omniflix1abc... that lasts for 24 hours with stream type 1" }
         },
         {
             user: "{{FlixAgent}}",
@@ -37,7 +37,7 @@ export default [
         },
         {
             user: "{{user1}}",
-            content: { text: "amount: 50 denom: FLIX duration: 86400 cancellable: false" }
+            content: { text: "amount: 50 denom: FLIX duration: 86400 cancellable: false streamType: 1" }
         },
         {
             user: "{{FlixAgent}}",
@@ -61,7 +61,7 @@ export default [
         },
         {
             user: "{{user2}}",
-            content: { text: "amount: 1000 denom: FLIX duration: 604800 paymentFee: 10" }
+            content: { text: "amount: 1000 denom: FLIX duration: 604800 paymentFee: 10 streamType: 0" }
         },
         {
             user: "{{FlixAgent}}",
@@ -85,7 +85,7 @@ export default [
         },
         {
             user: "{{user3}}",
-            content: { text: "amount: 75 denom: FLIX duration: 43200 periods: [{amount: 25, duration: 14400}]" }
+            content: { text: "amount: 75 denom: FLIX duration: 43200 periods: [{amount: 25, duration: 14400}] streamType: 0" }
         },
         {
             user: "{{FlixAgent}}",
