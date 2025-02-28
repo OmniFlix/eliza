@@ -147,15 +147,17 @@ export class StreamPayProvider {
             }
             client.registry.register("/OmniFlix.streampay.v1.MsgClaimStreamedAmount", MsgClaimStreamedAmount);
 
+            console.log('claimer', address, 'streamId', streamId);
             const claim = {
-                recipient: address,
-                streamId
+                claimer: address,
+                streamId: streamId
             };
 
             const claimStreamMsg = {
                 typeUrl: '/OmniFlix.streampay.v1.MsgClaimStreamedAmount',
                 value: claim
             };
+            console.log('claimStreamMsg', claimStreamMsg);
 
             const tx = await client.signAndBroadcast(
                 address,
@@ -163,6 +165,7 @@ export class StreamPayProvider {
                 "auto",
                 "Claim Streamed Amount using Eliza"
             );
+            console.log('tx', tx);
             return tx;
         } catch (error) {
             elizaLogger.error('Error in claimStreamedAmount:', error);
