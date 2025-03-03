@@ -155,7 +155,7 @@ export default {
 
             if (callback) {
                 callback({
-                    text: `✅ Successfully claimed streamed amount ${tx.streamId}\nTxHash: ${tx.transactionHash}`,
+                    text: `✅ Successfully claimed streamed amount of ${tx.streamId}\nTxHash: ${tx.transactionHash}`,
                     content: {
                         success: true,
                         hash: tx.transactionHash,

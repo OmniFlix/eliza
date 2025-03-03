@@ -94,5 +94,101 @@ export default [
                 action: "CLAIM_STREAMED_AMOUNT"
             }
         }
+    ],
+    [
+        {
+            user: "{{user5}}",
+            content: { text: "I need to claim the streamed amount for stream ID sp3333" }
+        },
+        {
+            user: "{{FlixAgent}}",
+            content: { 
+                text: "Let me assist you with claiming the streamed amount for stream ID sp3333.",
+                action: "NONE"
+            }
+        },
+        {
+            user: "{{user5}}",
+            content: { text: "streamId: sp3333 claimer: omniflix1jkl..." }
+        },
+        {
+            user: "{{FlixAgent}}",
+            content: { 
+                text: "Claiming the streamed amount for stream ID sp3333 now.",
+                action: "CLAIM_STREAMED_AMOUNT"
+            }
+        }
+    ],
+    [
+        {
+            user: "{{user6}}",
+            content: { text: "Can I claim the streamed amount for stream ID sp4444?" }
+        },
+        {
+            user: "{{FlixAgent}}",
+            content: { 
+                text: "Absolutely! I'll help you claim the streamed amount for stream ID sp4444.",
+                action: "NONE"
+            }
+        },
+        {
+            user: "{{user6}}",
+            content: { text: "streamId: sp4444 claimer: omniflix1mno..." }
+        },
+        {
+            user: "{{FlixAgent}}",
+            content: { 
+                text: "Claiming the streamed amount for stream ID sp4444 now.",
+                action: "CLAIM_STREAMED_AMOUNT"
+            }
+        }
+    ],
+    [
+        {
+            user: "{{user7}}",
+            content: { text: "I want to claim the amount for stream ID sp5555" }
+        },
+        {
+            user: "{{FlixAgent}}",
+            content: { 
+                text: "I'll assist you in claiming the amount for stream ID sp5555.",
+                action: "NONE"
+            }
+        },
+        {
+            user: "{{user7}}",
+            content: { text: "streamId: sp5555 claimer: omniflix1pqr..." }
+        },
+        {
+            user: "{{FlixAgent}}",
+            content: { 
+                text: "Claiming the streamed amount for stream ID sp5555 now.",
+                action: "CLAIM_STREAMED_AMOUNT"
+            }
+        }
+    ],
+    [
+        {
+            user: "{{user8}}",
+            content: { text: "Please help me claim the streamed amount for stream ID sp6666" }
+        },
+        {
+            user: "{{FlixAgent}}",
+            content: { 
+                text: "Of course! I'll assist you in claiming the streamed amount for stream ID sp6666.",
+                action: "NONE"
+            }
+        },
+        {
+            user: "{{user8}}",
+            content: { text: "streamId: sp6666 claimer: omniflix1stu..." }
+        },
+        {
+            user: "{{FlixAgent}}",
+            content: { 
+                text: "Claiming the streamed amount for stream ID sp6666 now.",
+                action: "CLAIM_STREAMED_AMOUNT"
+            }
+        }
     ]
 ];
