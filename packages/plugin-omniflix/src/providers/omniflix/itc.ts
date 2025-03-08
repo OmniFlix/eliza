@@ -115,9 +115,22 @@ export class ITCProvider {
             client.registry.register("/OmniFlix.itc.v1.MsgCreateCampaign", MsgCreateCampaign);
             
             console.log("Creating denom with details:", params);
-            const futureStartTime = new Date(Date.now() + Number(params.startTime) * 60 * 1000);
+            if (!params.startTime) {
+                throw new Error("Invalid startTime format. Please provide a valid time in minutes.");
+            }
+            const startTimeMatch = params.startTime.toString().match(/(\d+)/);
+            let startTimeInMinutes = 0;
+            console.log('match', startTimeMatch)
+
+            if (startTimeMatch) {
+                startTimeInMinutes = Number(startTimeMatch[0]); // Get the first matched group
+            } else {
+                throw new Error("Invalid startTime format. Please provide a valid time in minutes.");
+            }
+
+            const futureStartTime = new Date(Date.now() + startTimeInMinutes * 60 * 1000);
             const startTimeBigInt = BigInt(Math.floor(futureStartTime.getTime() / 1000));
-            console.log('startTimeBigInt', startTimeBigInt)
+            console.log('startTimeBigInt', startTimeBigInt, params.depositAmount);
             const campaign = {
                 name: params.name,
                 description: params.description,
@@ -129,10 +142,10 @@ export class ITCProvider {
                     amount: `${params.amount}`,
                 } : undefined,
                 maxAllowedClaims: params.maxAllowedClaims,
-                deposit: {
+                deposit: params.depositAmount ? {
                     denom: params.denom,
                     amount: `${params.depositAmount}`,
-                },
+                } : undefined,
                 nftMintDetails: params.nftMintDetails,
                 startTime: {
                     seconds: startTimeBigInt,

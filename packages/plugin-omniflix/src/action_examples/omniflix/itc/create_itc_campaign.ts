@@ -7,29 +7,18 @@ export default [
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "I'll create an ITC campaign. Please provide the name, description, interaction level, nftDenomId, amount, maxAllowedClaims, claimType, startTime, duration, and deposit if applicable.",
+                text: "I'll create an ITC campaign. Please provide the name, description, interaction level (0 for Burn, 1 for Transfer, 2 for Hold), claim type (0 for FT, 1 for NFT, 2 for both FT and NFT), nftDenomId, amount, maxAllowedClaims, start time in minutes from now, duration, and deposit if applicable.",
                 action: "NONE"
             }
         },
         {
             user: "{{user1}}",
-            content: { text: "name: My Campaign" }
+            content: { text: "name: ITCTesting#2, description: ITC Campaign Testing" }
         },
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given name is 'My Campaign'. Please provide a description.",
-                action: "NONE"
-            }
-        },
-        {
-            user: "{{user1}}",
-            content: { text: "description: This is a test campaign." }
-        },
-        {
-            user: "{{FlixAgent}}",
-            content: { 
-                text: "Given description is 'This is a test campaign'. Please provide the interaction level.",
+                text: "Given campaign name is 'ITCTesting#2' and description is 'ITC Campaign Testing'. Please provide the interaction level (0 for Burn, 1 for Transfer, 2 for Hold).",
                 action: "NONE"
             }
         },
@@ -40,13 +29,13 @@ export default [
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given interaction level is '1'. Please provide the claim type.",
+                text: "Given interaction level is '1'. Please provide the claim type (0 for FT, 1 for NFT, 2 for both FT and NFT).",
                 action: "NONE"
             }
         },
         {
             user: "{{user1}}",
-            content: { text: "claimType: 0" }
+            content: { text: "claimType: 0" } // User specifies claim type as FT
         },
         {
             user: "{{FlixAgent}}",
@@ -68,12 +57,12 @@ export default [
         },
         {
             user: "{{user1}}",
-            content: { text: "nftDenomId: onftdenom..." }
+            content: { text: "nftDenomId: onftdenom4e4842923316436baf8f7b5e2a7c375b" }
         },
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given nftDenomId is 'onftdenom'. Please provide the amount.",
+                text: "Given nftDenomId is 'onftdenom4e4842923316436baf8f7b5e2a7c375b'. Please provide the amount.",
                 action: "NONE"
             }
         },
@@ -90,18 +79,18 @@ export default [
         },
         {
             user: "{{user1}}",
-            content: { text: "maxAllowedClaims: 10n" }
+            content: { text: "maxAllowedClaims: 10" }
         },
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given maxAllowedClaims is '10n'. Please provide the startTime.",
+                text: "Given maxAllowedClaims is '10'. Please provide the start time in minutes from now (e.g., '5' for 5 minutes).",
                 action: "NONE"
             }
         },
         {
             user: "{{user1}}",
-            content: { text: "startTime: 5" }
+            content: { text: "startTime: 5" } // User specifies 5 minutes from now
         },
         {
             user: "{{FlixAgent}}",
@@ -112,12 +101,23 @@ export default [
         },
         {
             user: "{{user1}}",
-            content: { text: "duration: 10n" }
+            content: { text: "duration: 10000" }
         },
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given duration is '10n'. I will create the ITC campaign.",
+                text: "Given duration is '10000'. Please provide the distribution type (0 for Instant, 1 for Stream).",
+                action: "NONE"
+            }
+        },
+        {
+            user: "{{user1}}",
+            content: { text: "distributionType: 0" }
+        },
+        {
+            user: "{{FlixAgent}}",
+            content: { 
+                text: "Given distribution type is '0'. I will create the ITC campaign.",
                 action: "CREATE_ITC_CAMPAIGN"
             }
         },
@@ -130,7 +130,7 @@ export default [
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "I'll create an ITC campaign. Please provide the name, description, interaction level, nftDenomId, amount, maxAllowedClaims, claimType, startTime, duration, and nftMintDetails.",
+                text: "I'll create an ITC campaign. Please provide the name, description, interaction level (0 for Burn, 1 for Transfer, 2 for Hold), claim type (0 for FT, 1 for NFT, 2 for both FT and NFT), nftDenomId, amount, maxAllowedClaims, start time in minutes from now, duration, and nftMintDetails.",
                 action: "NONE"
             }
         },
@@ -152,7 +152,7 @@ export default [
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given description is 'Campaign for NFT distribution'. Please provide the interaction level.",
+                text: "Given description is 'Campaign for NFT distribution'. Please provide the interaction level (0 for Burn, 1 for Transfer, 2 for Hold).",
                 action: "NONE"
             }
         },
@@ -163,7 +163,7 @@ export default [
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given interaction level is '1'. Please provide the claim type.",
+                text: "Given interaction level is '1'. Please provide the claim type (0 for FT, 1 for NFT, 2 for both FT and NFT).",
                 action: "NONE"
             }
         },
@@ -202,12 +202,12 @@ export default [
         },
         {
             user: "{{user2}}",
-            content: { text: "maxAllowedClaims: 15n" }
+            content: { text: "maxAllowedClaims: 15" }
         },
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given maxAllowedClaims is '15n'. Please provide the startTime.",
+                text: "Given maxAllowedClaims is '15'. Please provide the start time in minutes from now (e.g., '5' for 5 minutes).",
                 action: "NONE"
             }
         },
@@ -224,12 +224,12 @@ export default [
         },
         {
             user: "{{user2}}",
-            content: { text: "duration: 20n" }
+            content: { text: "duration: 20" }
         },
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given duration is '20n'. I will create the ITC campaign.",
+                text: "Given duration is '20'. I will create the ITC campaign.",
                 action: "CREATE_ITC_CAMPAIGN"
             }
         },
@@ -242,7 +242,7 @@ export default [
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "I'll create an ITC campaign. Please provide the name, description, interaction level, nftDenomId, amount, maxAllowedClaims, claimType, startTime, duration, deposit, and nftMintDetails.",
+                text: "I'll create an ITC campaign. Please provide the name, description, interaction level (0 for Burn, 1 for Transfer, 2 for Hold), claim type (0 for FT, 1 for NFT, 2 for both FT and NFT), nftDenomId, amount, maxAllowedClaims, start time in minutes from now, duration, deposit, and nftMintDetails.",
                 action: "NONE"
             }
         },
@@ -264,7 +264,7 @@ export default [
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given description is 'This is another test campaign'. Please provide the interaction level.",
+                text: "Given description is 'This is another test campaign'. Please provide the interaction level (0 for Burn, 1 for Transfer, 2 for Hold).",
                 action: "NONE"
             }
         },
@@ -275,7 +275,7 @@ export default [
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given interaction level is '1'. Please provide the claim type.",
+                text: "Given interaction level is '1'. Please provide the claim type (0 for FT, 1 for NFT, 2 for both FT and NFT).",
                 action: "NONE"
             }
         },
@@ -325,12 +325,12 @@ export default [
         },
         {
             user: "{{user3}}",
-            content: { text: "maxAllowedClaims: 25n" }
+            content: { text: "maxAllowedClaims: 25" }
         },
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given maxAllowedClaims is '25n'. Please provide the startTime.",
+                text: "Given maxAllowedClaims is '25'. Please provide the start time in minutes from now (e.g., '5' for 5 minutes).",
                 action: "NONE"
             }
         },
@@ -347,12 +347,12 @@ export default [
         },
         {
             user: "{{user3}}",
-            content: { text: "duration: 30n" }
+            content: { text: "duration: 30" }
         },
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given duration is '30n'. I will create the ITC campaign.",
+                text: "Given duration is '30'. I will create the ITC campaign.",
                 action: "CREATE_ITC_CAMPAIGN"
             }
         },
@@ -365,7 +365,7 @@ export default [
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "I'll create an ITC campaign. Please provide the name, description, interaction level, nftDenomId, amount, maxAllowedClaims, claimType, startTime, duration, and deposit if applicable.",
+                text: "I'll create an ITC campaign. Please provide the name, description, interaction level (0 for Burn, 1 for Transfer, 2 for Hold), claim type (0 for FT, 1 for NFT, 2 for both FT and NFT), nftDenomId, amount, maxAllowedClaims, start time in minutes from now, duration, and deposit if applicable.",
                 action: "NONE"
             }
         },
@@ -387,7 +387,7 @@ export default [
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given description is empty. Please provide the interaction level.",
+                text: "Given description is empty. Please provide the interaction level (0 for Burn, 1 for Transfer, 2 for Hold).",
                 action: "NONE"
             }
         },
@@ -398,7 +398,7 @@ export default [
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given interaction level is empty. Please provide the claim type.",
+                text: "Given interaction level is empty. Please provide the claim type (0 for FT, 1 for NFT, 2 for both FT and NFT).",
                 action: "NONE"
             }
         },
@@ -442,7 +442,7 @@ export default [
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given maxAllowedClaims is empty. Please provide the startTime.",
+                text: "Given maxAllowedClaims is empty. Please provide the start time.",
                 action: "NONE"
             }
         },

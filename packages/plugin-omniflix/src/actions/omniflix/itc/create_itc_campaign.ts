@@ -25,8 +25,20 @@ export interface createITCCampaignContent extends Content {
     amount: number | string;
     maxAllowedClaims: bigint;
     depositAmount?: string;
-    nftMintDetails?: NFTDetails;
-    startTime: number | string;
+    collectionId?: string;
+    nftName?: string;
+    nftDescription?: string;
+    nftMediaUri?: string;
+    nftPreviewUri?: string;
+    royaltyShare?: string;
+    transferable?: boolean;
+    extensible?: boolean;
+    nsfw?: boolean;
+    data?: string;
+    uriHash?: string;
+    startIndex?: bigint;
+    nameDelimiter?: string;
+    startFromTimeInMinutes: number | string;
     duration: bigint;
     distributionType?: number;
     distributionStreamDuration?: bigint;
@@ -84,32 +96,26 @@ function isCreateITCCampaignContent(content: Content): validationResult {
     if (!content.maxAllowedClaims) {
         missingFields.push("maxAllowedClaims");
     }
-    if (!content.startTime) {
-        missingFields.push("startTime");
+    if (!content.startFromTimeInMinutes) {
+        missingFields.push("startFromTimeInMinutes");
     }
     if (!content.duration) {
         missingFields.push("duration");
     }
-    // if ((content.claimType == 0 || content.claimType == 2) && (!content.depositAmount || content.depositAmount === '')) {
-    //     missingFields.push("depositAmount");
-    // }
-    if ((content.claimType == 1 || content.claimType == 2) && (!content.nftMintDetails || (typeof content.nftMintDetails === "object" && Object.keys(content.nftMintDetails).length === 0))) {
-        missingFields.push("nftMintDetails");
+    if ((content.claimType == 0 || content.claimType == 2) && (!content.depositAmount || content.depositAmount === '')) {
+        missingFields.push("depositAmount");
     }
-    if ((content.claimType == 1 || content.claimType == 2) && 
-        content.nftMintDetails && 
-        typeof content.nftMintDetails === "object" && 
-        Object.keys(content.nftMintDetails).length > 0) {
-        const nftMintDetails = content.nftMintDetails as NFTDetails;
-        if (!nftMintDetails.denomId) {
-            missingFields.push("nftMintDetails.denomId");
-        }
-        if (!nftMintDetails.name) {
-            missingFields.push("nftMintDetails.name");
-        }
-        if (!nftMintDetails.mediaUri) {
-            missingFields.push("nftMintDetails.mediaUri");
-        }
+    if ((content.claimType == 1 || content.claimType == 2) && !content.collectionId) {
+        missingFields.push("collectionId");
+    }
+    if ((content.claimType == 1 || content.claimType == 2) && !content.nftName) {
+        missingFields.push("nftName");
+    }
+    if ((content.claimType == 1 || content.claimType == 2) && !content.nftDescription) {
+        missingFields.push("nftDescription");
+    }
+    if ((content.claimType == 1 || content.claimType == 2) && !content.nftMediaUri) {
+        missingFields.push("nftMediaUri & optional fields royaltyShare, transferable, extensible, nsfw, data, uriHash, startIndex, nameDelimiter");
     }
     if (content.distributionType == 1 && !content.distributionStreamDuration) {
         missingFields.push("distributionStreamDuration");
@@ -132,20 +138,31 @@ const createITCCampaignTemplate = `Respond with a JSON markdown block containing
 
 - name: (required) Please provide the name of the campaign.
 - description: (required) Please provide a description of the campaign.
-- interaction: (required) Please provide the interaction level. If not provided, default should be 0.
-- claimType: (optional) Please provide the claim type. If not provided, default should be 0.
+- interaction: (required) Please provide the interaction of the campaign and do not take example value.
+- claimType: (required) Please provide the claim type and do not take example value.
 - nftDenomId: (required) Please provide the nftDenomId.
 - denom: (optional) Please provide the denom.
 - amount: (required) Please provide the amount.
 - maxAllowedClaims: (required) Please provide the maxAllowedClaims.
 - depositAmount: (optional) Please provide the depositAmount.
-- startTime: (required) Please provide the startTime (in minutes from now).
+- startFromTimeInMinutes: (required) Please provide the startFromTimeInMinutes (in minutes from now).
 - duration: (required) Please provide the duration.
 - distributionType: (optional) Please provide the distributionType. If not provided, default should be 0.
 - distributionStreamDuration: (optional) Please provide the distributionStreamDuration. If distributionType is 1, then this field is required.
 - creationFee: (optional) Please provide the creationFee.
-- nftMintDetails: (optional) Please provide the nftMintDetails. If claimType is 1 or 2, then this field is required.
-
+- collectionId: (optional) Please provide the collectionId. If claimType is 1 or 2, then this field is required.
+- nftName: (optional) Please provide the nftName. If claimType is 1 or 2, then this field is required.
+- nftDescription: (optional) Please provide the nftDescription. If claimType is 1 or 2, then this field is required.
+- nftMediaUri: (optional) Please provide the nftMediaUri. If claimType is 1 or 2, then this field is required.
+- nftPreviewUri: (optional) Please provide the nftPreviewUri. If claimType is 1 or 2, then this field is required.
+- royaltyShare: (optional) Please provide the royaltyShare.
+- transferable: (optional) Please provide the transferable.
+- extensible: (optional) Please provide the extensible.
+- nsfw: (optional) Please provide the nsfw.
+- data: (optional) Please provide the data.
+- uriHash: (optional) Please provide the uriHash.
+- startIndex: (optional) Please provide the startIndex. default is 1
+- nameDelimiter: (optional) Please provide the nameDelimiter. default is '.'
 Example response:
 \`\`\`json
 {
@@ -163,7 +180,19 @@ Example response:
    "distributionType": 0,
    "distributionStreamDuration": 0,
    "creationFee": "Your Creation Fee",
-   "nftMintDetails": {}
+   "collectionId": "Your Collection ID",
+   "nftName": "Your NFT Name",
+   "nftDescription": "Your NFT Description",
+   "nftMediaUri": "Your NFT Media URI",
+   "nftPreviewUri": "Your NFT Preview URI",
+   "royaltyShare": "Your NFT Royalty Share",
+   "transferable": true,
+   "extensible": true,
+   "nsfw": false,
+   "data": "Your NFT Data",
+   "uriHash": "Your NFT URI Hash",
+   "startIndex": 0,
+   "nameDelimiter": "Your NFT Name Delimiter",
 }
 \`\`\`
 
@@ -193,10 +222,10 @@ export class createITCCampaignAction {
                 } else if (typeof params.amount === "string") {
                     params.amount = Number.parseInt(params.amount) * 1000000;
                 }
-                if (typeof params.deposit === "number") {
-                    params.deposit = params.deposit * 1000000;
-                } else if (typeof params.deposit === "string") {
-                    params.deposit = Number.parseInt(params.deposit) * 1000000;
+                if (typeof params.depositAmount === "number") {
+                    params.depositAmount = (params.depositAmount * 1000000).toString();
+                } else if (typeof params.depositAmount === "string") {
+                    params.depositAmount = (Number.parseInt(params.depositAmount) * 1000000).toString();
                 }
             }
             const response = await itcProvider.createCampaign({
@@ -209,12 +238,26 @@ export class createITCCampaignAction {
                 amount: params.amount,
                 maxAllowedClaims: params.maxAllowedClaims,
                 depositAmount: params.depositAmount,
-                startTime: params.startTime,
+                startTime: params.startFromTimeInMinutes,
                 duration: params.duration,
                 distributionType: params.distributionType,
                 distributionStreamDuration: params.distributionStreamDuration,
                 creationFee: params.creationFee,
-                nftMintDetails: params.nftMintDetails,
+                nftMintDetails: {
+                    denomId: params.collectionId,
+                    name: params.nftName,
+                    description: params.nftDescription,
+                    mediaUri: params.nftMediaUri,
+                    previewUri: params.nftPreviewUri,
+                    royaltyShare: params.royaltyShare,
+                    transferable: params.transferable,
+                    extensible: params.extensible,
+                    nsfw: params.nsfw,
+                    data: params.data,
+                    uriHash: params.uriHash,
+                    startIndex: params.startIndex,
+                    nameDelimiter: params.nameDelimiter,
+                },
             });
             if (!response || response.code !== 0) {
                 throw new Error(`${response.rawLog}`);
