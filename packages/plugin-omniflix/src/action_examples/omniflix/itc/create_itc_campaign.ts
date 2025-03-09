@@ -90,12 +90,12 @@ export default [
         },
         {
             user: "{{user1}}",
-            content: { text: "startTime: 5" } // User specifies 5 minutes from now
+            content: { text: "startFromTimeInMinutes: 5" } // User specifies 5 minutes from now
         },
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given startTime is '5'. Please provide the duration.",
+                text: "Given startFromTimeInMinutes is '5'. Please provide the duration.",
                 action: "NONE"
             }
         },
@@ -213,12 +213,12 @@ export default [
         },
         {
             user: "{{user2}}",
-            content: { text: "startTime: 10" }
+            content: { text: "startFromTimeInMinutes: 10" }
         },
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given startTime is '10'. Please provide the duration.",
+                text: "Given startFromTimeInMinutes is '10'. Please provide the duration.",
                 action: "NONE"
             }
         },
@@ -336,12 +336,12 @@ export default [
         },
         {
             user: "{{user3}}",
-            content: { text: "startTime: 15" }
+            content: { text: "startFromTimeInMinutes: 15" }
         },
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given startTime is '15'. Please provide the duration.",
+                text: "Given startFromTimeInMinutes is '15'. Please provide the duration.",
                 action: "NONE"
             }
         },
@@ -448,12 +448,12 @@ export default [
         },
         {
             user: "{{user4}}",
-            content: { text: "startTime: " }
+            content: { text: "startFromTimeInMinutes: " }
         },
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Given startTime is empty. Please provide the duration.",
+                text: "Given startFromTimeInMinutes is empty. Please provide the duration.",
                 action: "NONE"
             }
         },
@@ -464,7 +464,79 @@ export default [
         {
             user: "{{FlixAgent}}",
             content: { 
-                text: "Missing required fields: description, interaction, claimType, nftDenomId, amount, maxAllowedClaims, startTime, duration.",
+                text: "Missing required fields: description, interaction, claimType, nftDenomId, amount, maxAllowedClaims, startFromTimeInMinutes, duration.",
+                action: "NONE"
+            }
+        },
+    ],
+    [
+        {
+            user: "{{user5}}",
+            content: { text: "Create an ITC campaign for FT" }
+        },
+        {
+            user: "{{FlixAgent}}",
+            content: { 
+                text: "I'll create an ITC campaign. Please provide the details.",
+                action: "NONE"
+            }
+        },
+        {
+            user: "{{user5}}",
+            content: { text: "name: FT Campaign, description: Campaign for FT distribution, interaction: 1, claimType: 0, nftDenomId: '', amount: 1000000, maxAllowedClaims: 10, depositAmount: '100', startFromTimeInMinutes: 5, duration: 10000, distributionType: 0" }
+        },
+        {
+            user: "{{FlixAgent}}",
+            content: { 
+                text: "Successfully created FT campaign.",
+                action: "CREATE_ITC_CAMPAIGN"
+            }
+        },
+    ],
+    [
+        {
+            user: "{{user6}}",
+            content: { text: "Create an ITC campaign for NFT" }
+        },
+        {
+            user: "{{FlixAgent}}",
+            content: { 
+                text: "I'll create an ITC campaign. Please provide the details.",
+                action: "NONE"
+            }
+        },
+        {
+            user: "{{user6}}",
+            content: { text: "name: NFT Campaign, description: Campaign for NFT distribution, interaction: 1, claimType: 1, nftDenomId: 'nftDenom', amount: 2000000, maxAllowedClaims: 15, startFromTimeInMinutes: 10, duration: 20000" }
+        },
+        {
+            user: "{{FlixAgent}}",
+            content: { 
+                text: "Successfully created NFT campaign.",
+                action: "CREATE_ITC_CAMPAIGN"
+            }
+        },
+    ],
+    [
+        {
+            user: "{{user7}}",
+            content: { text: "Create an ITC campaign missing fields" }
+        },
+        {
+            user: "{{FlixAgent}}",
+            content: { 
+                text: "I'll create an ITC campaign. Please provide the details.",
+                action: "NONE"
+            }
+        },
+        {
+            user: "{{user7}}",
+            content: { text: "name: Incomplete Campaign, interaction: 1, claimType: 0, amount: 1000000, maxAllowedClaims: 10" }
+        },
+        {
+            user: "{{FlixAgent}}",
+            content: { 
+                text: "Missing required fields: description, nftDenomId, startFromTimeInMinutes, duration.",
                 action: "NONE"
             }
         },

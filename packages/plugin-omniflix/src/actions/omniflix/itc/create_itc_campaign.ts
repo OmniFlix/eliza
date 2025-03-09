@@ -117,7 +117,10 @@ function isCreateITCCampaignContent(content: Content): validationResult {
     if ((content.claimType == 1 || content.claimType == 2) && !content.nftMediaUri) {
         missingFields.push("nftMediaUri & optional fields royaltyShare, transferable, extensible, nsfw, data, uriHash, startIndex, nameDelimiter");
     }
-    if (content.distributionType == 1 && !content.distributionStreamDuration) {
+    if (!content.distributionType) {
+        missingFields.push("distributionType(0 - Instant, 1 - Timed)");
+    }
+    if (content.distributionType == 1 && (!content.distributionStreamDuration || content.distributionStreamDuration == '0')) {
         missingFields.push("distributionStreamDuration");
     }
 
