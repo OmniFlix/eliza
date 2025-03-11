@@ -5,6 +5,9 @@ import transferDenom from "./transfer_denom.ts";
 import mintONFT from "./mint_nft.ts";
 import transferNFT from "./transfer_nft.ts";
 import burnNFT from "./burn_nft.ts";
+import getDenom from "./get_denom.ts";
+import getNFTs from "./get_nfts.ts";
+import getSingleNFT from "./get_nft.ts";
 
 export const onftActions: Action[] = [
     createDenom, 
@@ -12,6 +15,9 @@ export const onftActions: Action[] = [
     transferDenom, 
     mintONFT, 
     transferNFT,
-    burnNFT
+    burnNFT,
+    getDenom,
+    getNFTs,
+    getSingleNFT,
 ];
 export default onftActions;

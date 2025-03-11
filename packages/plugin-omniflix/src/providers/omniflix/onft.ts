@@ -1,7 +1,9 @@
 import { elizaLogger } from "@elizaos/core";
-import { DeliverTxResponse } from "@cosmjs/stargate";
+import { DeliverTxResponse, createProtobufRpcClient, QueryClient } from "@cosmjs/stargate";
+import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 import { WalletProvider } from "../wallet";
 import { MsgCreateDenom, MsgUpdateDenom, MsgTransferDenom, MsgMintONFT, MsgTransferONFT, MsgBurnONFT } from '@omniflixnetwork/omniflixjs/OmniFlix/onft/v1beta1/tx';
+import { QueryClientImpl } from "@omniflixnetwork/omniflixjs/OmniFlix/onft/v1beta1/query";
 
 export class ONFTProvider {
     private wallet: WalletProvider;
@@ -296,6 +298,115 @@ export class ONFTProvider {
             return tx;
         } catch (e) {
             elizaLogger.error(`Error in burnONFT: ${e}`);
+            throw e;
+        }
+    }
+
+    async getDenom(
+        id: string
+    ): Promise<any> {
+        try {
+            let tmClient;
+            const rpcEndpoint = process.env.OMNIFLIX_RPC_ENDPOINT;
+
+            if (!rpcEndpoint) {
+                elizaLogger.error("RPC endpoint not found");
+                return null;
+            }
+            tmClient = await Tendermint34Client.connect(rpcEndpoint);
+            
+            // Create query client
+            const queryClient = QueryClient.withExtensions(tmClient);
+            const rpcClient = createProtobufRpcClient(queryClient);
+            
+            // Create OmniFlix query client
+            const onftQueryClient = new QueryClientImpl(rpcClient);
+
+            // Make the Query Request to get only denom info
+            const response = await onftQueryClient.Denom({
+                denomId: id
+            });
+
+        return response.denom;
+        } catch (e) {
+            elizaLogger.error(`Error in getDenom: ${e}`);
+            throw e;
+        }
+    }
+
+    async getNFTs(
+        denomId: string,
+    ): Promise<any> {
+        try {
+            const address = await this.wallet.getAddress();
+            if (!address) {
+                throw new Error("Could not get address");
+            }
+
+            let tmClient;
+            const rpcEndpoint = process.env.OMNIFLIX_RPC_ENDPOINT;
+
+            if (!rpcEndpoint) {
+                elizaLogger.error("RPC endpoint not found");
+                return null;
+            }
+            tmClient = await Tendermint34Client.connect(rpcEndpoint);
+            
+            // Create query client
+            const queryClient = QueryClient.withExtensions(tmClient);
+            const rpcClient = createProtobufRpcClient(queryClient);
+            
+            // Create OmniFlix query client
+            const onftQueryClient = new QueryClientImpl(rpcClient);
+
+            // Make the Query Request to get only denom info
+            const response = await onftQueryClient.Collection({
+                denomId: denomId,
+            });
+            console.log(response);
+
+        return response.collection.onfts;
+        } catch (e) {
+            elizaLogger.error(`Error in getNFTs: ${e}`);
+            throw e;
+        }
+    }
+
+    async getSingleNFT(
+        denomId: string,
+        nftId: string,
+    ): Promise<any> {
+        try {
+            const address = await this.wallet.getAddress();
+            if (!address) {
+                throw new Error("Could not get address");
+            }
+
+            let tmClient;
+            const rpcEndpoint = process.env.OMNIFLIX_RPC_ENDPOINT;
+
+            if (!rpcEndpoint) {
+                elizaLogger.error("RPC endpoint not found");
+                return null;
+            }
+            tmClient = await Tendermint34Client.connect(rpcEndpoint);
+            
+            // Create query client
+            const queryClient = QueryClient.withExtensions(tmClient);
+            const rpcClient = createProtobufRpcClient(queryClient);
+            
+            // Create OmniFlix query client
+            const onftQueryClient = new QueryClientImpl(rpcClient);
+
+            // Make the Query Request to get only denom info
+            const response = await onftQueryClient.ONFT({
+                denomId: denomId,
+                id: nftId,
+            });
+
+        return response.onft;
+        } catch (e) {
+            elizaLogger.error(`Error in getNFT: ${e}`);
             throw e;
         }
     }
